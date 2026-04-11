@@ -847,6 +847,20 @@ vendor/lib/libqcodec2_platform.so
 vendor/lib/libqcodec2_utils.so
 vendor/lib/libqcodec2_v4l2codec.so
 
+# Media (Dolby Vision)
+vendor/bin/hw/dolbycodec2|807b8f8e6bb4e16d8b03df5a9069053f92f0c63a
+vendor/etc/dolby_vision.cfg|bee8ef1b54bd1386cec85f8199c55038c3ae1cca
+vendor/etc/init/vendor.dolbyvision.media.c2@1.0-service.rc|1ea8b363e94fd4f5410cadceb30de8229fb38045
+vendor/lib64/c2.dolby.avc.dec.so|d0ad4c843a5a10c93f3cdfb0e67c72a212cf531d
+vendor/lib64/c2.dolby.avc.sec.dec.so|e580675ec6b1ff7ab11a4a8aec8e2c97c7868f36
+vendor/lib64/c2.dolby.client.so|8288a5c0d5128764f03d916f9e10183a852421a7
+vendor/lib64/c2.dolby.egl.so|11843f482039be68f002575585730f4369ac906c
+vendor/lib64/c2.dolby.hevc.dec.so|f9731f3a0364b5c53603eb9c12fb2b8a3f66c68f
+vendor/lib64/c2.dolby.hevc.sec.dec.so|80fbe9073685349a42c600b96f335cec76127049
+vendor/lib64/c2.dolby.store.so|9eb1b161344b223a5c72292f247a50a370331674
+vendor/lib64/libdolbyottcameracontrol.so|349010af7861d6419a78915804e3efdbb3684595
+vendor/lib64/libdolbyvision.so|15d71c39562a52ea0be125ce4888d0ad0e781351
+
 # Media configs
 vendor/etc/media_profiles_kona.xml:vendor/etc/media_profiles_V1_0.xml
 vendor/etc/system_properties.xml
