@@ -123,9 +123,7 @@ PRODUCT_PACKAGES += \
 
 # Device-specific settings
 PRODUCT_PACKAGES += \
-    XiaomiDolby \
-    XiaomiParts \
-    DSPVolumeSynchronizer
+    XiaomiParts
 
 # Dex
 # Speed profile services and wifi-service to reduce RAM and storage.
@@ -184,6 +182,8 @@ PRODUCT_PACKAGES += \
 # Dolby VNDK libs
 PRODUCT_PACKAGES += \
     libstagefright_foundation-v33
+
+$(call inherit-product, hardware/dolby/dolby.mk)
 
 # DRM
 PRODUCT_PACKAGES += \
