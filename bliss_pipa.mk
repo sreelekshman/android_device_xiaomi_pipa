@@ -8,26 +8,14 @@
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base.mk)
 
-# Inherit some common lineage stuff.
-$(call inherit-product, vendor/lineage/config/common_full_tablet_wifionly.mk)
+# Inherit some common BlissRoms stuff.
+$(call inherit-product, vendor/bliss/config/common_full_tablet_wifionly.mk)
 
 # Inherit from pipa device.
 $(call inherit-product, device/xiaomi/pipa/device.mk)
 
-# Inherit keys only if they are not included before.
-ifndef ANDROID_PRIV_KEYS_MK_INCLUDED
-$(call inherit-product, vendor/lineage-priv/keys/keys.mk)
-endif
 
-# Derpfest Flags
-DERPFEST_BUILD_TYPE := Official
-TARGET_EXCLUDE_BACKUPTOOL := false
-TARGET_INCLUDE_ACCORD := false
-TARGET_SUPPORTS_64_BIT_APPS := true
-TARGET_SUPPORTS_QUICK_TAP := false
-WITH_GMS := true
-
-PRODUCT_NAME := lineage_pipa
+PRODUCT_NAME := bliss_pipa
 PRODUCT_DEVICE := pipa
 PRODUCT_MANUFACTURER := Xiaomi
 PRODUCT_BRAND := Xiaomi
