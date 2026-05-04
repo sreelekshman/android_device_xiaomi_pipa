@@ -1,0 +1,4 @@
+runtime_resource_overlay {
+    name: "OpenDeltaOverlayDevice",
+    product_specific: true
+}
