@@ -14,6 +14,8 @@ $(call inherit-product, vendor/bliss/config/common_full_tablet_wifionly.mk)
 # Inherit from pipa device.
 $(call inherit-product, device/xiaomi/pipa/device.mk)
 
+BLISS_BUILDTYPE := OFFICIAL
+TARGET_GAPPS_VARIANT := micro
 
 PRODUCT_NAME := bliss_pipa
 PRODUCT_DEVICE := pipa
