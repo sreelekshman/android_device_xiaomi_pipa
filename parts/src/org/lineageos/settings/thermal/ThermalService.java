@@ -116,11 +116,12 @@ public class ThermalService extends Service {
     }
 
     private boolean isListedOnGameSpace(String packageName) {
-        String[] gameList = Settings.System.getString(getContentResolver(),
-                SETTINGS_GAME_LIST).split(";");
-        if (packageName == null || gameList.length == 0) {
+        String games = Settings.System.getString(getContentResolver(), SETTINGS_GAME_LIST);
+        if (packageName == null || games == null || games.isEmpty()) {
             return false;
         }
+
+        String[] gameList = games.split(";");
 
         return Arrays.stream(gameList).map(data -> {
             String[] userGame = data.split("=");
