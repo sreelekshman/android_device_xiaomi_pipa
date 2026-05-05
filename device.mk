@@ -276,10 +276,11 @@ PRODUCT_PACKAGES += \
     LineageSDKOverlayDevice \
     LineageSettingsOverlayDevice \
     LineageSystemUIOverlayDevice \
-    OpenDeltaOverlayDevice \
-    SystemUIOverlayDevice \
+    SettingsOverlayDevice \
     SettingsProviderOverlayDevice \
-    WifiResourcesOverlayDevice
+    SettingsLibOverlayDevice \
+    SystemUIOverlayDevice \
+    WifiResDevice
 
 PRODUCT_ENFORCE_RRO_TARGETS := *
 
@@ -418,10 +419,6 @@ PRODUCT_PACKAGES += \
 # Vendor service manager
 PRODUCT_PACKAGES += \
     vndservicemanager
-
-# WiFi
-PRODUCT_PACKAGES += \
-    TargetWifiOverlay
 
 PRODUCT_PACKAGES += \
     android.hardware.wifi-service \
