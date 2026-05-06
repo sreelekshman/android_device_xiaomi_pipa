@@ -622,44 +622,44 @@ vendor/etc/init/android.hardware.gatekeeper@1.0-service-qti.rc
 vendor/lib64/hw/android.hardware.gatekeeper@1.0-impl-qti.so
 
 # Graphics (Adreno) - from ishtar OS2.0.108.0.VMACNXM
-vendor/gpu/kbc/sequence_manifest.bin
-vendor/gpu/kbc/unified_kbcs_32.bin
-vendor/gpu/kbc/unified_kbcs_64.bin
-vendor/gpu/kbc/unified_ksqs.bin
+vendor/gpu/kbc/sequence_manifest.bin|d0569fdb8a2e659181a7c4369d8278cb99c92fca
+vendor/gpu/kbc/unified_kbcs_32.bin|f8fd77d73116151375aedd176e5b400001dd76af
+vendor/gpu/kbc/unified_kbcs_64.bin|ddbed7d389bdc3ff5725f77da77d28fea63e3507
+vendor/gpu/kbc/unified_ksqs.bin|e1174f1692be432f5ceca8f85ea669dbe667a2e7
 vendor/lib/egl/libEGL_adreno.so;SYMLINK=vendor/lib/libEGL_adreno.so
 vendor/lib/egl/libGLESv2_adreno.so;SYMLINK=vendor/lib/libGLESv2_adreno.so
 vendor/lib/egl/libq3dtools_adreno.so;SYMLINK=vendor/lib/libq3dtools_adreno.so
 vendor/lib/egl/eglSubDriverAndroid.so
 vendor/lib/egl/libGLESv1_CM_adreno.so
-vendor/lib/egl/libVkLayer_ADRENO_qprofiler.so
+vendor/lib/egl/libVkLayer_ADRENO_qprofiler.so|66977ab36e356c9c4c4a7586a0928048416087da
 vendor/lib/egl/libq3dtools_esx.so
 vendor/lib/libCB.so
 vendor/lib/libOpenCL.so
 vendor/lib/libadreno_utils.so
 vendor/lib/libgpudataproducer.so
 vendor/lib/libgsl.so
-vendor/lib/libkcl.so
-vendor/lib/libkernelmanager.so
+vendor/lib/libkcl.so|800c5af2f45524127f0745056d7b7e24a5af42e1
+vendor/lib/libkernelmanager.so|369cbc290d1c1955ee15f3cfdda1363b8d121346
 vendor/lib/libllvm-glnext.so
 vendor/lib/libllvm-qcom.so
-vendor/lib/libllvm-qgl.so
+vendor/lib/libllvm-qgl.so|96330dd941e038e3ff58f47c623829f61004ee66
 vendor/lib64/egl/libEGL_adreno.so;SYMLINK=vendor/lib64/libEGL_adreno.so
 vendor/lib64/egl/libGLESv2_adreno.so;SYMLINK=vendor/lib64/libGLESv2_adreno.so
 vendor/lib64/egl/libq3dtools_adreno.so;SYMLINK=vendor/lib64/libq3dtools_adreno.so
 vendor/lib64/egl/eglSubDriverAndroid.so
 vendor/lib64/egl/libGLESv1_CM_adreno.so
-vendor/lib64/egl/libVkLayer_ADRENO_qprofiler.so
+vendor/lib64/egl/libVkLayer_ADRENO_qprofiler.so|9fe5fb2020a11580516c1f0c35afafc622e519f8
 vendor/lib64/egl/libq3dtools_esx.so
 vendor/lib64/libCB.so
 vendor/lib64/libOpenCL.so
 vendor/lib64/libadreno_utils.so
 vendor/lib64/libgpudataproducer.so
 vendor/lib64/libgsl.so
-vendor/lib64/libkcl.so
-vendor/lib64/libkernelmanager.so
+vendor/lib64/libkcl.so|7114a45e27fccdba57eb54b09fb402673108d621
+vendor/lib64/libkernelmanager.so|de076c3378d85b77ccd980a2630e0542001606b8
 vendor/lib64/libllvm-glnext.so
 vendor/lib64/libllvm-qcom.so
-vendor/lib64/libllvm-qgl.so
+vendor/lib64/libllvm-qgl.so|f458bb591e065f4117748c1380b89be0aa5e286d
 
 # Graphics (Adreno) - from Spacewar 2501081938
 vendor/lib/libC2D2.so
