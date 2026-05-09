@@ -23,9 +23,14 @@ PRODUCT_MANUFACTURER := Xiaomi
 PRODUCT_BRAND := Xiaomi
 PRODUCT_MODEL := 23043RP34G
 
+PRODUCT_SYSTEM_NAME   := pipa_global
+PRODUCT_SYSTEM_DEVICE := pipa
+
 PRODUCT_CHARACTERISTICS := tablet
 
 PRODUCT_GMS_CLIENTID_BASE := android-xiaomi
 
 PRODUCT_BUILD_PROP_OVERRIDES += \
-    BuildFingerprint=Xiaomi/pipa_global/pipa:13/RKQ1.211001.001/OS2.0.14.0.UMZMIXM:user/release-keys
+    BuildFingerprint=Xiaomi/pipa_global/pipa:13/RKQ1.211001.001/OS2.0.14.0.UMZMIXM:user/release-keys \
+    DeviceName=$(PRODUCT_SYSTEM_DEVICE) \
+    DeviceProduct=$(PRODUCT_SYSTEM_NAME)
