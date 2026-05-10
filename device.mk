@@ -258,6 +258,8 @@ PRODUCT_PACKAGES += \
     media_codecs_performance_kona.xml \
     video_system_specs.json
 
+$(LOCAL_PATH)/media/media_codecs_dolby_audio.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_dolby_audio.xml
+
 # MIDL
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/android.hardware.midi.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.midi.xml
