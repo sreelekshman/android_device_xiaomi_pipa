@@ -17,6 +17,8 @@ $(call inherit-product, device/xiaomi/pipa/device.mk)
 BLISS_BUILDTYPE := OFFICIAL
 GAPPS_ARCH := arm64
 
+TARGET_INCLUDES_DolbyVision := true
+
 PRODUCT_NAME := bliss_pipa
 PRODUCT_DEVICE := pipa
 PRODUCT_MANUFACTURER := Xiaomi
