@@ -8,16 +8,13 @@
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base.mk)
 
-# Inherit some common BlissRoms stuff.
-$(call inherit-product, vendor/bliss/config/common_full_tablet_wifionly.mk)
+# Inherit some common Lineage stuff.
+$(call inherit-product, vendor/lineage/config/common_full_tablet_wifionly.mk)
 
 # Inherit from pipa device.
 $(call inherit-product, device/xiaomi/pipa/device.mk)
 
-BLISS_BUILDTYPE := OFFICIAL
-TARGET_GAPPS_VARIANT := micro
-
-PRODUCT_NAME := bliss_pipa
+PRODUCT_NAME := lineage_pipa
 PRODUCT_DEVICE := pipa
 PRODUCT_MANUFACTURER := Xiaomi
 PRODUCT_BRAND := Xiaomi
