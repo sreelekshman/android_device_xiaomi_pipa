@@ -121,10 +121,6 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     libpiex_shim
 
-# Configstore
-PRODUCT_PACKAGES += \
-    disable_configstore
-
 # Device-specific settings
 PRODUCT_PACKAGES += \
     XiaomiDolby \
