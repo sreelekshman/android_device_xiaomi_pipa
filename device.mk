@@ -193,10 +193,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     android.hardware.drm-service.clearkey
 
-# fastbootd
-PRODUCT_PACKAGES += \
-    fastbootd
-
 # Health
 PRODUCT_PACKAGES += \
     android.hardware.health-service.qti
