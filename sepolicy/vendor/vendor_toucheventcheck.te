@@ -1,0 +1,7 @@
+type vendor_toucheventcheck, domain;
+type vendor_toucheventcheck_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(vendor_toucheventcheck)
+
+# Allow reading raw input devices
+allow vendor_toucheventcheck input_device:dir r_dir_perms;
+allow vendor_toucheventcheck input_device:chr_file { r_file_perms ioctl };

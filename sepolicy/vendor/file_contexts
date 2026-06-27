@@ -14,6 +14,9 @@
 # Charger
 /vendor/bin/batterysecret                                                                           u:object_r:vendor_batterysecret_exec:s0
 
+# Device Node Labeling
+/dev/ion                                                                                            u:object_r:ion_device:s0
+
 # Dolby
 /data/vendor/dolby(/.*)?                                                                                   u:object_r:vendor_data_file:s0
 /(vendor|system/vendor)/bin/hw/vendor\.dolby\.hardware\.dms@2\.0-service                                   u:object_r:hal_dms_default_exec:s0
@@ -31,6 +34,11 @@
 /data/vendor/fpdump(/.*)?                                                                           u:object_r:fingerprint_vendor_data_file:s0
 /mnt/vendor/persist/fpc(/.*)?                                                                       u:object_r:vendor_persist_fingerprint_file:s0
 /mnt/vendor/persist/goodix(/.*)?                                                                    u:object_r:vendor_persist_fingerprint_file:s0
+
+# HAL Binary Transition
+/vendor/bin/hw/vendor\.xiaomi\.hardware\.displayfeature@1\.0-service      			    u:object_r:hal_displayfeature_xiaomi_default_exec:s0
+/vendor/bin/hw/vendor\.xiaomi\.hardware\.citsensorservice@1\.1-service   			    u:object_r:hal_citsensorservice_xiaomi_default_exec:s0
+/vendor/bin/toucheventcheck                                               			    u:object_r:vendor_toucheventcheck_exec:s0
 
 # Hexagon DSP-side executable needed for Halide operation
 # This is labeled as vendor_public_adsprpcd_file as it needs to be read by apps
