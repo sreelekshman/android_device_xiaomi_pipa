@@ -6,6 +6,7 @@
 
 TARGET_IS_VAB := true
 TARGET_IS_TABLET := true
+LOCAL_ALLOW_UNDEFINED_SYMBOLS := true
 
 # Setup dalvik vm configs
 $(call inherit-product, frameworks/native/build/phone-xhdpi-6144-dalvik-heap.mk)
@@ -121,10 +122,6 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     libpiex_shim
 
-# Configstore
-PRODUCT_PACKAGES += \
-    disable_configstore
-
 # Device-specific settings
 PRODUCT_PACKAGES += \
     XiaomiDolby \
@@ -192,10 +189,6 @@ PRODUCT_PACKAGES += \
 # DRM
 PRODUCT_PACKAGES += \
     android.hardware.drm-service.clearkey
-
-# fastbootd
-PRODUCT_PACKAGES += \
-    fastbootd
 
 # Health
 PRODUCT_PACKAGES += \
@@ -437,10 +430,6 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/wifi/WCNSS_qcom_cfg.ini:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/WCNSS_qcom_cfg.ini \
     $(LOCAL_PATH)/wifi/p2p_supplicant_overlay.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/p2p_supplicant_overlay.conf \
     $(LOCAL_PATH)/wifi/wpa_supplicant_overlay.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/wpa_supplicant_overlay.conf
-
-# Wi-Fi Display
-PRODUCT_PACKAGES += \
-    libwfdaac_vendor
 
 # Inherit from vendor blobs
 $(call inherit-product, vendor/xiaomi/pipa/pipa-vendor.mk)
