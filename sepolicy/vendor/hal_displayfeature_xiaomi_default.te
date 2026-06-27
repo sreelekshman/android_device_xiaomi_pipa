@@ -1,0 +1,25 @@
+type hal_displayfeature_xiaomi_default, domain;
+type hal_displayfeature_xiaomi_default_exec, exec_type, vendor_file_type, file_type;
+
+# Force transition from init to this domain
+init_daemon_domain(hal_displayfeature_xiaomi_default)
+
+# Allow basic Binder and IPC router communication
+hwbinder_use(hal_displayfeature_xiaomi_default)
+vndbinder_use(hal_displayfeature_xiaomi_default)
+allow hal_displayfeature_xiaomi_default self:qipcrtr_socket create_socket_perms_no_ioctl;
+allow hal_displayfeature_xiaomi_default hwservicemanager:binder { call transfer };
+
+# Allow access to panel backlight brightness
+allow hal_displayfeature_xiaomi_default vendor_sysfs_graphics:dir search;
+allow hal_displayfeature_xiaomi_default vendor_sysfs_graphics:file rw_file_perms;
+
+# Allow Binder calls to Graphics Composer (SurfaceFlinger)
+allow hal_displayfeature_xiaomi_default hal_graphics_composer_default:binder { call transfer };
+allow hal_graphics_composer_default hal_displayfeature_xiaomi_default:binder { call transfer };
+
+# Allow reading hwservicemanager properties
+get_prop(hal_displayfeature_xiaomi_default, hwservicemanager_prop)
+
+# Allow setting display properties (dfps.level)
+set_prop(hal_displayfeature_xiaomi_default, vendor_display_prop)

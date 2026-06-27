@@ -1,0 +1,15 @@
+allow hal_graphics_allocator_default ion_device:chr_file rw_file_perms;
+allow hal_camera_default ion_device:chr_file rw_file_perms;
+allow hal_audio_default ion_device:chr_file rw_file_perms;
+allow vendor_hal_gatekeeper_qti ion_device:chr_file rw_file_perms;
+allow vendor_hal_keymaster_qti ion_device:chr_file rw_file_perms;
+allow vendor_hal_neuralnetworks_default ion_device:chr_file rw_file_perms;
+allow vendor_hal_qteeconnector_qti ion_device:chr_file rw_file_perms;
+allow vendor_hal_soter_qti ion_device:chr_file rw_file_perms;
+
+# Proprietary Services & Codecs
+allow vendor_vppservice ion_device:chr_file rw_file_perms;
+allow tee ion_device:chr_file rw_file_perms;
+allow vendor_sensors ion_device:chr_file rw_file_perms;
+allow mediacodec ion_device:chr_file rw_file_perms;
+allow mediaswcodec ion_device:chr_file rw_file_perms;

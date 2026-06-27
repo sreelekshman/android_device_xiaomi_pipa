@@ -1,1 +1,4 @@
 r_dir_file(system_app, vendor_sysfs_battery_supply)
+
+# Allow system apps (like pipa-boot-init) to check KGSL (GPU) devfreq
+allow system_app vendor_sysfs_kgsl:lnk_file read;

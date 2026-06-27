@@ -3,6 +3,14 @@ set_prop(vendor_init, vendor_camera_prop)
 set_prop(vendor_init, vendor_ssr_prop)
 set_prop(vendor_init, vendor_video_prop)
 
+# Allow setting only our specific defined vendor properties
+set_prop(vendor_init, vendor_display_prop)
+set_prop(vendor_init, vendor_ims_prop)
+
+# Allow writing to performance/scheduling nodes
+allow vendor_init pipa_sched_proc:file w_file_perms;
+allow vendor_init proc_page_cluster:file w_file_perms;
+
 allow vendor_init {
   proc_dirty
   proc
