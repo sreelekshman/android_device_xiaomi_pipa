@@ -69,6 +69,10 @@
 # Touch Feature
 /vendor/bin/hw/vendor\.xiaomi\.hardware\.touchfeature@1\.0-service                                  u:object_r:hal_touchfeature_xiaomi_default_exec:s0
 
+# Display Feature
+/vendor/bin/displayfeature                                                                          u:object_r:vendor_displayfeature_exec:s0
+/vendor/bin/hw/vendor\.xiaomi\.hardware\.displayfeature@1\.0-service                                u:object_r:vendor_hal_displayfeature_xiaomi_default_exec:s0
+
 # Ultrasound devices
 /dev/elliptic[0-9]+                                                                                 u:object_r:ultrasound_device:s0
 /dev/mius(.*)?                                                                                      u:object_r:ultrasound_device:s0
