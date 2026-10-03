@@ -153,6 +153,8 @@ TARGET_VNDK_USE_CORE_VARIANT := true
 # Display
 PRODUCT_VENDOR_PROPERTIES += \
     debug.graphics.game_default_frame_rate.disabled=1 \
+    vendor.displayfeature.entry.enable=true \
+    persist.vendor.dolby.loglevel=0
 
 PRODUCT_PACKAGES += \
     vendor.qti.hardware.display.composer-service
@@ -164,24 +166,6 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_PACKAGES += \
     vendor.qti.hardware.memtrack-service
-
-# Dolby Props
-PRODUCT_VENDOR_PROPERTIES += \
-    ro.vendor.dolby.dax.version=DAX3_3.6.1.6_r1 \
-    ro.vendor.audio.dolby.dax.version=DAX3_3.6 \
-    ro.vendor.audio.dolby.dax.support=true \
-    ro.vendor.audio.dolby.surround.enable=true
-
-# Dolby MediaCodecs Dependenices
-PRODUCT_PACKAGES += \
-    libcodec2_hidl@1.0.vendor \
-    libcodec2_soft_common.vendor \
-    libstagefright_softomx.vendor \
-    libstagefright_softomx_plugin.vendor
-
-# Dolby VNDK libs
-PRODUCT_PACKAGES += \
-    libstagefright_foundation-v33
 
 $(call inherit-product, hardware/dolby/dolby.mk)
 
