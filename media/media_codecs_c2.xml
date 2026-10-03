@@ -114,7 +114,7 @@
             <Limit name="performance-point-4096x2304" value="30" />
             <Limit name="performance-point-3840x2160" value="60" />
         </MediaCodec>
-        <MediaCodec name="c2.qti.hevc.decoder" type="video/hevc" >
+        <MediaCodec name="c2.qti.hevc.decoder" type="video/hevc" rank="1">
             <Limit name="size" min="128x128" max="4096x2304" />
             <Limit name="alignment" value="2x2" />
             <Limit name="block-size" value="16x16" />
@@ -145,7 +145,7 @@
             <Feature name="can-swap-width-height" value="1" />
             <Limit name="concurrent-instances" max="16" />
         </MediaCodec>
-        <MediaCodec name="c2.qti.hevc.decoder.secure" type="video/hevc" >
+        <MediaCodec name="c2.qti.hevc.decoder.secure" type="video/hevc" rank="1">
             <Limit name="size" min="128x128" max="4096x2304" />
             <Limit name="alignment" value="2x2" />
             <Limit name="block-size" value="16x16" />
