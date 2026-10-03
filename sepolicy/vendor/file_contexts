@@ -14,6 +14,10 @@
 # Charger
 /vendor/bin/batterysecret                                                                           u:object_r:vendor_batterysecret_exec:s0
 
+# Display Feature
+/vendor/bin/displayfeature                                                                          u:object_r:vendor_displayfeature_exec:s0
+/vendor/bin/hw/vendor\.xiaomi\.hardware\.displayfeature@1\.0-service                                u:object_r:vendor_hal_displayfeature_xiaomi_default_exec:s0
+
 # Fingerprint
 /vendor/bin/hw/android\.hardware\.biometrics\.fingerprint-service\.xiaomi                           u:object_r:hal_fingerprint_default_exec:s0
 

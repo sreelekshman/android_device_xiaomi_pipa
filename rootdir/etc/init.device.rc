@@ -44,3 +44,8 @@ on property:persist.vendor.parts.keyboard=0
 
 on property:persist.vendor.parts.pen=*
     start xiaomi-pen
+
+service displayfeature /vendor/bin/displayfeature
+    class late_start
+    user root
+    group root system graphics
