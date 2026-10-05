@@ -108,8 +108,7 @@ PRODUCT_PACKAGES += \
 
 # Device-specific settings
 PRODUCT_PACKAGES += \
-    XiaomiParts \
-    DSPVolumeSynchronizer
+    XiaomiParts
 
 # Display
 PRODUCT_VENDOR_PROPERTIES += \
