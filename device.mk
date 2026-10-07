@@ -48,9 +48,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     checkpoint_gc \
     otapreopt_script
-
-PRODUCT_PACKAGES += \
-    OpenDeltaOverlayKona
 endif
 
 # Audio
@@ -233,8 +230,6 @@ PRODUCT_PACKAGES += \
     SettingsProviderOverlayDevice \
     SystemUIOverlayDevice \
     WifiResourcesOverlayDevice
-
-PRODUCT_ENFORCE_RRO_TARGETS := *
 
 # Partitions
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
