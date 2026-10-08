@@ -76,13 +76,22 @@
             </intent-filter>
             <meta-data
                 android:name="com.android.settings.category"
-                android:value="com.android.settings.category.ia.system" />
+                android:value="com.android.settings.category.ia.homepage" />
+            <meta-data
+                android:name="com.android.settings.keyhint"
+                android:value="top_level_pipa_controls" />
+            <meta-data
+                android:name="com.android.settings.group_key"
+                android:value="top_level_system_info_category" />
+            <meta-data
+                android:name="com.android.settings.icon"
+                android:resource="@drawable/ic_pipa_controls" />
             <meta-data
                 android:name="com.android.settings.summary"
                 android:resource="@string/pipa_controls_summary" />
             <meta-data
                 android:name="com.android.settings.order"
-                android:value="-20" />
+                android:value="-22" />
         </activity>
 
         <activity

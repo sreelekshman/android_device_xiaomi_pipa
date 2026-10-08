@@ -14,7 +14,7 @@ import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity;
 /**
  * Entry point for Pipa Controls — device-specific settings hub.
  *
- * Registered under com.android.settings.category.ia.system
+ * Registered under com.android.settings.category.ia.homepage
  */
 public class PipaControlsActivity extends CollapsingToolbarBaseActivity {
 
