@@ -44,10 +44,10 @@
     <string name="pen_charging_notification_content_full">Stylus is fully charged (100%)</string>
     <string name="pen_charging_notification_content_unknown">Charging…</string>
     <string name="pen_fully_charged_toast">Stylus Fully Charged</string>
-    <string name="stylus_charging_notification_title">Stylus charging notification</string>
-    <string name="stylus_charging_notification_summary">Show persistent notification with battery percentage while charging</string>
+    <string name="stylus_charging_notification_title">Stylus status popup</string>
+    <string name="stylus_charging_notification_summary">Show floating status chip when stylus is attached or fully charged</string>
 
-    <!-- iOS Floating Card Strings -->
+    <!-- Stylus Status Chip / Floating Notification Strings -->
     <string name="stylus_card_title_charging">Stylus Charging</string>
     <string name="stylus_card_title_charged">Stylus Charged</string>
     <string name="stylus_card_title_connected">Stylus Connected</string>
@@ -55,11 +55,11 @@
     <string name="stylus_card_title_low_battery">Stylus Battery Low</string>
     <string name="stylus_card_title_critical_battery">Stylus Battery Critical</string>
     <string name="stylus_card_sub_charging">Charging</string>
-    <string name="stylus_card_sub_charged">Fully Charged</string>
+    <string name="stylus_card_sub_charged">Fully charged</string>
     <string name="stylus_card_sub_connected">Connected</string>
     <string name="stylus_card_sub_disconnected">Disconnected</string>
-    <string name="stylus_card_sub_low_battery">Connect your stylus to charge</string>
-    <string name="stylus_card_sub_critical_battery">Charge your stylus now</string>
+    <string name="stylus_card_sub_low_battery">Battery low</string>
+    <string name="stylus_card_sub_critical_battery">Battery critical</string>
 
 
     <!-- Smart Cover -->

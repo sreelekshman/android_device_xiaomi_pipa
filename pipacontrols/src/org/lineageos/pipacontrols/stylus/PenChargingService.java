@@ -1,15 +1,16 @@
 /*
  * Copyright (C) 2026 Mufasa
+ * Copyright (C) 2026 The LineageOS Project
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package org.lineageos.pipacontrols.stylus;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -17,6 +18,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.hardware.input.InputManager;
+import android.view.InputDevice;
+
+import java.util.Locale;
+import java.util.Set;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -31,8 +37,8 @@ import org.lineageos.pipacontrols.R;
 
 /**
  * Persistent Background Service managing the iOS-inspired stylus charging experience:
- * 1. On Connect / Attach: Triggers charging popup + ongoing notification.
- * 2. On Detach / Remove: Triggers disconnected popup + cleans up notification.
+ * 1. On Connect / Attach: Triggers charging popup.
+ * 2. On Detach / Remove: Triggers disconnected popup.
  * 3. On 100% Full Charge: Triggers fully charged popup (once per cycle).
  * 4. On Significant Battery Update: Updates popup in-place without duplicating windows.
  * 5. On Low/Critical Battery: Alerts with warning popup.
@@ -41,7 +47,6 @@ import org.lineageos.pipacontrols.R;
 public class PenChargingService extends Service {
 
     private static final String TAG = "PenChargingService";
-    private static final String CHANNEL_ID = "pen_charging_status";
     private static final int NOTIFICATION_ID = 1001;
 
     public static final String ACTION_SHOW_STYLUS_POPUP =
@@ -50,7 +55,7 @@ public class PenChargingService extends Service {
     public static final String EXTRA_BATTERY_LEVEL = "battery_level";
     public static final String EXTRA_DEVICE_NAME = "device_name";
 
-    private static final long POLL_INTERVAL_ACTIVE_MS = 1200L; // 1.2s snappy polling while screen is on
+    private static final long POLL_INTERVAL_ACTIVE_MS = 1200L;
     private static final long NINETY_NINE_TO_FULL_MS = 60000L; // 1 minute
     private static final int BATTERY_LEVEL_UNKNOWN = Integer.MIN_VALUE;
     private static final int LOW_BATTERY_THRESHOLD = 15;
@@ -69,6 +74,7 @@ public class PenChargingService extends Service {
     private boolean mHasShown100PercentPopup = false;
     private int mLastBatteryLevel = BATTERY_LEVEL_UNKNOWN;
     private Long mFirstSeen99AtMs = null;
+    private String mStylusDeviceName = null;
 
     private final Runnable mPollRunnable = new Runnable() {
         @Override
@@ -107,19 +113,15 @@ public class PenChargingService extends Service {
                     if (PREF_STYLUS_CHARGING_NOTIF.equals(key)) {
                         boolean enabled = prefs.getBoolean(key, true);
                         if (!enabled) {
-                            hideNotification();
-                            mWasCharging = false;
-                            mHasShown100PercentPopup = false;
-                            mLastBatteryLevel = BATTERY_LEVEL_UNKNOWN;
-                            mFirstSeen99AtMs = null;
-                        } else {
-                            if (mPowerManager != null && mPowerManager.isInteractive()) {
-                                updateChargingStatus();
-                            }
+                            mPillController.hidePill();
                         }
                     }
                 }
             };
+
+    private boolean isPopupEnabled() {
+        return mPreferences == null || mPreferences.getBoolean(PREF_STYLUS_CHARGING_NOTIF, true);
+    }
 
     @Override
     public void onCreate() {
@@ -129,7 +131,10 @@ public class PenChargingService extends Service {
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mPreferences.registerOnSharedPreferenceChangeListener(mPrefListener);
 
-        createNotificationChannel();
+        if (mNotificationManager != null) {
+            mNotificationManager.cancel(NOTIFICATION_ID);
+        }
+
         mPillController = new StylusPillController(this);
 
         registerReceivers();
@@ -138,7 +143,7 @@ public class PenChargingService extends Service {
             startMonitoring();
         }
 
-        Log.i(TAG, "PenChargingService initialized with iOS-inspired charging controller");
+        Log.i(TAG, "PenChargingService initialized with Material You charging controller");
     }
 
     @Override
@@ -165,21 +170,6 @@ public class PenChargingService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
-    }
-
-    private void createNotificationChannel() {
-        if (mNotificationManager == null) return;
-        NotificationChannel channel = new NotificationChannel(
-                CHANNEL_ID,
-                getString(R.string.pen_charging_channel_name),
-                NotificationManager.IMPORTANCE_LOW
-        );
-        channel.setDescription(getString(R.string.pen_charging_channel_description));
-        channel.setShowBadge(false);
-        channel.enableLights(false);
-        channel.enableVibration(false);
-        channel.setSound(null, null);
-        mNotificationManager.createNotificationChannel(channel);
     }
 
     private void registerReceivers() {
@@ -216,28 +206,98 @@ public class PenChargingService extends Service {
 
     private void handleBluetoothConnected(Intent intent) {
         BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice.class);
-        String name = (device != null && device.getName() != null) ? device.getName() : null;
+        if (device != null) {
+            String devName = device.getAlias() != null ? device.getAlias() : device.getName();
+            if (devName != null) {
+                String lower = devName.toLowerCase(Locale.ROOT);
+                if (lower.contains("pen") || lower.contains("stylus")) {
+                    mStylusDeviceName = devName;
+                }
+            }
+        }
+        String name = getStylusDeviceName();
         PenChargingManager.PenChargingStatus status = PenChargingManager.getStatus(this);
 
-        // ACTION_ACL_CONNECTED fires for every Bluetooth device (earbuds,
-        // watches, ...). Only react when the wireless charging hardware has
-        // actually confirmed a stylus on the pill.
         if (status == null || !status.isConnected) {
             return;
         }
 
         int level = status.batteryLevel;
-        if (status.isCharging) {
-            mPillController.showPopup(level >= 100 ? StylusState.FULLY_CHARGED : StylusState.CHARGING, level, name);
-        } else {
-            mPillController.showPopup(StylusState.CONNECTED, level, name);
+        if (isPopupEnabled()) {
+            if (status.isCharging) {
+                mPillController.showPopup(level >= 100 ? StylusState.FULLY_CHARGED : StylusState.CHARGING, level, name);
+            } else {
+                mPillController.showPopup(StylusState.CONNECTED, level, name);
+            }
         }
+    }
+
+    private String getStylusDeviceName() {
+        if (mStylusDeviceName != null && !mStylusDeviceName.isEmpty()) {
+            return mStylusDeviceName;
+        }
+        mStylusDeviceName = queryBluetoothStylusName();
+        if (mStylusDeviceName != null && !mStylusDeviceName.isEmpty()) {
+            return mStylusDeviceName;
+        }
+        return getString(R.string.stylus_title);
+    }
+
+    private String queryBluetoothStylusName() {
+        try {
+            BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+            if (adapter != null && adapter.isEnabled()) {
+                Set<BluetoothDevice> bondedDevices = adapter.getBondedDevices();
+                if (bondedDevices != null) {
+                    for (BluetoothDevice device : bondedDevices) {
+                        String name = device.getAlias() != null ? device.getAlias() : device.getName();
+                        if (name != null) {
+                            String lower = name.toLowerCase(Locale.ROOT);
+                            if (lower.contains("pen") || lower.contains("stylus")) {
+                                return name;
+                            }
+                        }
+                    }
+                    for (BluetoothDevice device : bondedDevices) {
+                        if (device.getBluetoothClass() != null &&
+                                device.getBluetoothClass().getMajorDeviceClass() == BluetoothClass.Device.Major.PERIPHERAL) {
+                            String name = device.getAlias() != null ? device.getAlias() : device.getName();
+                            if (name != null && !name.toLowerCase(Locale.ROOT).contains("keyboard")) {
+                                return name;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Failed to query Bluetooth stylus name", e);
+        }
+
+        try {
+            InputManager inputManager = (InputManager) getSystemService(Context.INPUT_SERVICE);
+            if (inputManager != null) {
+                for (int id : inputManager.getInputDeviceIds()) {
+                    InputDevice dev = inputManager.getInputDevice(id);
+                    if (dev != null && (dev.getSources() & InputDevice.SOURCE_STYLUS) != 0) {
+                        String devName = dev.getName();
+                        if (devName != null && !devName.isEmpty() && !devName.equalsIgnoreCase("pen")) {
+                            return devName;
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+
+        return null;
     }
 
     private void handleManualPopupRequest(Intent intent) {
         String stateStr = intent.getStringExtra(EXTRA_STATE);
         int batteryLevel = intent.getIntExtra(EXTRA_BATTERY_LEVEL, -1);
         String deviceName = intent.getStringExtra(EXTRA_DEVICE_NAME);
+        if (deviceName == null || deviceName.isEmpty()) {
+            deviceName = getStylusDeviceName();
+        }
 
         StylusState state;
         if (stateStr != null) {
@@ -265,18 +325,18 @@ public class PenChargingService extends Service {
 
     private void updateChargingStatus() {
         PenChargingManager.PenChargingStatus status = PenChargingManager.getStatus(this);
+        String penName = getStylusDeviceName();
         if (status == null || !status.isConnected || !status.isCharging) {
             if (mWasCharging) {
-                // Warn about a nearly empty stylus right when it is detached,
-                // that is the moment the user can still react to it.
                 StylusState detachState = StylusState.DISCONNECTED;
                 if (mLastBatteryLevel >= 0 && mLastBatteryLevel <= CRITICAL_BATTERY_THRESHOLD) {
                     detachState = StylusState.CRITICAL_BATTERY;
                 } else if (mLastBatteryLevel >= 0 && mLastBatteryLevel <= LOW_BATTERY_THRESHOLD) {
                     detachState = StylusState.LOW_BATTERY;
                 }
-                Log.i(TAG, "Stylus detached -> Triggering " + detachState + " popup and removing notification");
-                mPillController.showPopup(detachState, mLastBatteryLevel, null);
+                if (isPopupEnabled()) {
+                    mPillController.showPopup(detachState, mLastBatteryLevel, penName);
+                }
                 hideNotification();
                 mWasCharging = false;
                 mHasShown100PercentPopup = false;
@@ -310,16 +370,17 @@ public class PenChargingService extends Service {
         mWasCharging = true;
 
         if (justAttached) {
-            Log.i(TAG, "Stylus attached -> Triggering iOS floating charging popup (" +
+            Log.i(TAG, "Stylus attached -> floating charging chip (" +
                     (displayLevel >= 0 ? displayLevel + "%" : "unknown SoC") + ")");
             mLastBatteryLevel = displayLevel;
-            StylusState state = (displayLevel >= 100) ? StylusState.FULLY_CHARGED : StylusState.CHARGING;
-            mPillController.showPopup(state, displayLevel, null);
+            if (isPopupEnabled()) {
+                StylusState state = (displayLevel >= 100) ? StylusState.FULLY_CHARGED : StylusState.CHARGING;
+                mPillController.showPopup(state, displayLevel, penName);
+            }
 
             if (displayLevel >= 100) {
                 mHasShown100PercentPopup = true;
             }
-            showNotification(displayLevel);
         } else {
             // Charging progress updates while remaining attached
             if (displayLevel < 100 && displayLevel >= 0) {
@@ -328,65 +389,15 @@ public class PenChargingService extends Service {
                 // Trigger 100% full charge popup once per cycle
                 if (!mHasShown100PercentPopup) {
                     mHasShown100PercentPopup = true;
-                    Log.i(TAG, "Stylus reached 100% -> Triggering full charge popup");
-                    mPillController.showPopup(StylusState.FULLY_CHARGED, 100, null);
-                    mHandler.post(() -> Toast.makeText(getApplicationContext(),
-                            R.string.pen_fully_charged_toast,
-                            Toast.LENGTH_SHORT).show());
+                    if (isPopupEnabled()) {
+                        Log.i(TAG, "Stylus reached 100% -> Triggering full charge popup");
+                        mPillController.showPopup(StylusState.FULLY_CHARGED, 100, penName);
+                    }
                 }
             }
 
-            if (displayLevel != mLastBatteryLevel) {
-                // Significant battery level jump update in place
-                if (mLastBatteryLevel >= 0 && Math.abs(displayLevel - mLastBatteryLevel) >= 5) {
-                    mPillController.showPopup(displayLevel >= 100 ? StylusState.FULLY_CHARGED : StylusState.CHARGING,
-                            displayLevel, null);
-                }
-
-                mLastBatteryLevel = displayLevel;
-                showNotification(displayLevel);
-            }
+            mLastBatteryLevel = displayLevel;
         }
-    }
-
-    private void showNotification(int batteryLevel) {
-        boolean notifEnabled = mPreferences == null || mPreferences.getBoolean(PREF_STYLUS_CHARGING_NOTIF, true);
-        if (!notifEnabled || mNotificationManager == null) {
-            hideNotification();
-            return;
-        }
-
-        String title;
-        String content;
-        if (batteryLevel >= 100) {
-            title = getString(R.string.pen_charging_notification_title_full);
-            content = getString(R.string.pen_charging_notification_content_full);
-        } else if (batteryLevel >= 0) {
-            title = getString(R.string.pen_charging_notification_title);
-            content = getString(R.string.pen_charging_notification_content, batteryLevel);
-        } else {
-            title = getString(R.string.pen_charging_notification_title);
-            content = getString(R.string.pen_charging_notification_content_unknown);
-        }
-
-        Notification.Builder builder = new Notification.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_stylus_charging)
-                .setContentTitle(title)
-                .setContentText(content)
-                .setOngoing(true)
-                .setOnlyAlertOnce(true)
-                .setShowWhen(false)
-                .setColor(batteryLevel >= 0 && batteryLevel < 100
-                        ? Color.rgb(48, 209, 88)
-                        : Color.rgb(142, 142, 147))
-                .setCategory(Notification.CATEGORY_STATUS)
-                .setVisibility(Notification.VISIBILITY_PUBLIC);
-
-        if (batteryLevel >= 0 && batteryLevel <= 100) {
-            builder.setProgress(100, batteryLevel, false);
-        }
-
-        mNotificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
     private void hideNotification() {

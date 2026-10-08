@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2026 Mufasa
+ * Copyright (C) 2026 The LineageOS Project
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -12,7 +13,7 @@ import android.graphics.Color;
 import org.lineageos.pipacontrols.R;
 
 /**
- * UI State Model for the iOS-inspired Stylus Charging Popup.
+ * UI State Model for the Material You Stylus Status Chip.
  */
 public enum StylusState {
     CHARGING(3500L),
@@ -34,23 +35,9 @@ public enum StylusState {
     }
 
     public String getTitle(Context context, String customName) {
-        String name = (customName != null && !customName.isEmpty()) ? customName : context.getString(R.string.stylus_title);
-        switch (this) {
-            case FULLY_CHARGED:
-                return context.getString(R.string.stylus_card_title_charged);
-            case CHARGING:
-                return context.getString(R.string.stylus_card_title_charging);
-            case LOW_BATTERY:
-                return context.getString(R.string.stylus_card_title_low_battery);
-            case CRITICAL_BATTERY:
-                return context.getString(R.string.stylus_card_title_critical_battery);
-            case DISCONNECTED:
-                return context.getString(R.string.stylus_card_title_disconnected);
-            case CONNECTED:
-            case UNKNOWN:
-            default:
-                return name;
-        }
+        return (customName != null && !customName.isEmpty())
+                ? customName
+                : context.getString(R.string.stylus_title);
     }
 
     public String getSubtitle(Context context) {
@@ -73,21 +60,40 @@ public enum StylusState {
         }
     }
 
+    public int getAccentColor(Context context) {
+        if (context == null) return getAccentColor();
+        switch (this) {
+            case FULLY_CHARGED:
+            case CHARGING:
+                return context.getColor(R.color.stylus_accent_charging);
+            case LOW_BATTERY:
+                return context.getColor(R.color.stylus_accent_warning);
+            case CRITICAL_BATTERY:
+                return context.getColor(R.color.stylus_accent_critical);
+            case CONNECTED:
+                return context.getColor(R.color.stylus_accent_connected);
+            case DISCONNECTED:
+            case UNKNOWN:
+            default:
+                return context.getColor(R.color.stylus_accent_neutral);
+        }
+    }
+
     public int getAccentColor() {
         switch (this) {
             case FULLY_CHARGED:
             case CHARGING:
-                return Color.parseColor("#30D158"); // Apple Green
+                return Color.parseColor("#4C662B"); // Material Green Accent
             case LOW_BATTERY:
-                return Color.parseColor("#FF9F0A"); // Apple Orange
+                return Color.parseColor("#775A0B"); // Material Yellow/Orange Accent
             case CRITICAL_BATTERY:
-                return Color.parseColor("#FF453A"); // Apple Red
+                return Color.parseColor("#BA1A1A"); // Material Error Red Accent
             case CONNECTED:
-                return Color.parseColor("#0A84FF"); // Apple Blue
+                return Color.parseColor("#2E6088"); // Material Blue Accent
             case DISCONNECTED:
             case UNKNOWN:
             default:
-                return Color.parseColor("#8E8E93"); // Neutral Gray
+                return Color.parseColor("#73777F"); // Material Neutral Variant
         }
     }
 }

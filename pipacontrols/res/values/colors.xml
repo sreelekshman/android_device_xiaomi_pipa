@@ -6,18 +6,19 @@
 <resources>
     <color name="disabled_text_color">#FFBDBDBD</color>
 
-    <!-- iOS Translucent Card Colors -->
-    <color name="stylus_card_bg">#E61C1C1E</color>
-    <color name="stylus_card_border">#1FFFFFFF</color>
-    <color name="stylus_icon_container_bg">#26FFFFFF</color>
-    <color name="stylus_text_primary">#FFFFFFFF</color>
-    <color name="stylus_text_secondary">#B3FFFFFF</color>
+    <!-- Material You / Monet Stylus Chip Surface -->
+    <color name="stylus_card_bg">@android:color/system_neutral1_50</color>
+    <color name="stylus_card_border">@android:color/system_neutral2_200</color>
+    <color name="stylus_icon_container_bg">@android:color/system_accent1_100</color>
+    <color name="stylus_icon_tint">@android:color/system_accent1_900</color>
+    <color name="stylus_text_primary">@android:color/system_neutral1_900</color>
+    <color name="stylus_text_secondary">@android:color/system_neutral2_700</color>
 
-    <!-- Accents -->
-    <color name="stylus_accent_charging">#30D158</color>
-    <color name="stylus_accent_warning">#FF9F0A</color>
-    <color name="stylus_accent_critical">#FF453A</color>
-    <color name="stylus_accent_connected">#0A84FF</color>
-    <color name="stylus_accent_neutral">#8E8E93</color>
-    <color name="stylus_battery_track">#26FFFFFF</color>
+    <!-- Battery & Accents -->
+    <color name="stylus_battery_track">@android:color/system_neutral2_200</color>
+    <color name="stylus_accent_charging">@android:color/system_accent1_600</color>
+    <color name="stylus_accent_warning">@android:color/system_accent3_600</color>
+    <color name="stylus_accent_critical">@android:color/system_error_600</color>
+    <color name="stylus_accent_connected">@android:color/system_accent1_600</color>
+    <color name="stylus_accent_neutral">@android:color/system_neutral2_700</color>
 </resources>

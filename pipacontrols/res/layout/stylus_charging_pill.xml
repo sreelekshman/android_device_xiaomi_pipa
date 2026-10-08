@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
      Copyright (C) 2026 Mufasa
+     Copyright (C) 2026 The LineageOS Project
      SPDX-License-Identifier: Apache-2.0
 -->
 <org.lineageos.pipacontrols.stylus.StylusChargingPillView
@@ -8,4 +9,84 @@
     android:id="@+id/stylus_charging_pill"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_gravity="center_horizontal|top" />
+    android:clipToPadding="false"
+    android:clipChildren="false"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
+    android:paddingTop="6dp"
+    android:paddingBottom="12dp">
+
+    <LinearLayout
+        android:id="@+id/stylus_chip_inner"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/stylus_card_height"
+        android:minWidth="@dimen/stylus_card_min_width"
+        android:maxWidth="@dimen/stylus_card_max_width"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_stylus_chip"
+        android:elevation="@dimen/stylus_card_elevation"
+        android:outlineProvider="background"
+        android:clipToOutline="true"
+        android:paddingStart="12dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+        <!-- Circular Avatar Container for Stylus Icon -->
+        <FrameLayout
+            android:id="@+id/stylus_icon_container"
+            android:layout_width="@dimen/stylus_icon_container_size"
+            android:layout_height="@dimen/stylus_icon_container_size"
+            android:background="@drawable/bg_stylus_icon_container">
+
+            <ImageView
+                android:id="@+id/stylus_icon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_stylus"
+                android:tint="@color/stylus_icon_tint" />
+        </FrameLayout>
+
+        <!-- Information Text Column (Stylus Name + Status) -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="14dp"
+            android:layout_marginEnd="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/stylus_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="@color/stylus_text_primary"
+                android:singleLine="true"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/stylus_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textColor="@color/stylus_text_secondary"
+                android:singleLine="true"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- Charge Percentage on the Far Right Side -->
+        <TextView
+            android:id="@+id/stylus_battery_percent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/stylus_text_primary" />
+
+    </LinearLayout>
+
+</org.lineageos.pipacontrols.stylus.StylusChargingPillView>

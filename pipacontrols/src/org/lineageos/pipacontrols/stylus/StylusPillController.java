@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2026 Mufasa
+ * Copyright (C) 2026 The LineageOS Project
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -17,16 +18,14 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.OvershootInterpolator;
+import android.view.animation.PathInterpolator;
 
 import org.lineageos.pipacontrols.R;
 
 /**
- * Controller managing the custom Canvas-based Liquid-Glass Stylus Charging Pill overlay.
- * Handles WindowManager injection, clean animations, in-place state transitions,
- * and auto-dismissal timeouts without fullscreen or background blurring.
+ * Controller managing the Material You Stylus Status Chip overlay.
+ * Handles WindowManager injection, Material 3 animations, in-place state transitions,
+ * and auto-dismissal timeouts.
  */
 public class StylusPillController {
 
@@ -71,17 +70,25 @@ public class StylusPillController {
                 mIsDismissing = false;
 
                 if (mPillView.isAttachedToWindow()) {
-                    // Update model in-place with subtle attention spring
+                    // Update model in-place with subtle Material attention pulse
                     mPillView.setModel(model);
                     mPillView.setAlpha(1f);
                     mPillView.setTranslationY(0f);
-                    mPillView.setScaleX(0.96f);
-                    mPillView.setScaleY(0.96f);
                     mPillView.animate()
-                            .scaleX(1f)
-                            .scaleY(1f)
-                            .setDuration(220)
-                            .setInterpolator(new DecelerateInterpolator())
+                            .scaleX(1.02f)
+                            .scaleY(1.02f)
+                            .setDuration(120)
+                            .setInterpolator(new PathInterpolator(0.05f, 0.7f, 0.1f, 1.0f))
+                            .withEndAction(() -> {
+                                if (mPillView != null) {
+                                    mPillView.animate()
+                                            .scaleX(1.0f)
+                                            .scaleY(1.0f)
+                                            .setDuration(160)
+                                            .setInterpolator(new PathInterpolator(0.05f, 0.7f, 0.1f, 1.0f))
+                                            .start();
+                                }
+                            })
                             .start();
 
                     announceAccessibility(title, subtitle, percent);
@@ -103,12 +110,9 @@ public class StylusPillController {
             }
             view.setModel(model);
 
-            int popupWidth = (int) dpToPx(310f);
-            int popupHeight = (int) dpToPx(72f);
-
             WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(
-                    popupWidth,
-                    popupHeight,
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT,
                     WindowManager.LayoutParams.TYPE_STATUS_BAR_SUB_PANEL,
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                             | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
@@ -120,11 +124,11 @@ public class StylusPillController {
             layoutParams.alpha = 1.0f;
             layoutParams.windowAnimations = 0;
 
-            // Animate entrance: slide down from above + scale spring + alpha fade-in
+            // Animate entrance: subtle slide down with Material Emphasized motion
             view.setAlpha(0f);
-            view.setTranslationY(-dpToPx(36));
-            view.setScaleX(0.90f);
-            view.setScaleY(0.90f);
+            view.setTranslationY(-dpToPx(16));
+            view.setScaleX(0.96f);
+            view.setScaleY(0.96f);
 
             try {
                 mWindowManager.addView(view, layoutParams);
@@ -136,8 +140,8 @@ public class StylusPillController {
                         .translationY(0f)
                         .scaleX(1f)
                         .scaleY(1f)
-                        .setDuration(350)
-                        .setInterpolator(new OvershootInterpolator(1.15f))
+                        .setDuration(300)
+                        .setInterpolator(new PathInterpolator(0.05f, 0.7f, 0.1f, 1.0f))
                         .start();
 
                 announceAccessibility(title, subtitle, percent);
@@ -203,11 +207,11 @@ public class StylusPillController {
 
             view.animate()
                     .alpha(0f)
-                    .translationY(-dpToPx(24))
-                    .scaleX(0.92f)
-                    .scaleY(0.92f)
-                    .setDuration(250)
-                    .setInterpolator(new AccelerateInterpolator(1.5f))
+                    .translationY(-dpToPx(12))
+                    .scaleX(0.96f)
+                    .scaleY(0.96f)
+                    .setDuration(200)
+                    .setInterpolator(new PathInterpolator(0.3f, 0.0f, 0.8f, 0.15f))
                     .setListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationEnd(Animator animation) {
