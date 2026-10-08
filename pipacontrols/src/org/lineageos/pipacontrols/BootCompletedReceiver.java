@@ -55,8 +55,8 @@ public class BootCompletedReceiver extends BroadcastReceiver {
     private static void initPeripherals(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
-        boolean stylusEnabled   = prefs.getBoolean("stylus_mode_key", false);
-        boolean forceRecognize  = prefs.getBoolean("force_recognize_stylus_key", false);
+        boolean stylusEnabled   = prefs.getBoolean("stylus_mode_key", true);
+        boolean forceRecognize  = prefs.getBoolean("force_recognize_stylus_key", true);
         boolean keyboardEnabled = prefs.getBoolean("keyboard_mode_key", false);
 
         if (keyboardEnabled) {

@@ -78,8 +78,8 @@ public class PenUtils {
 
         mCurrentRefreshMode = mPreferences.getString(STYLUS_REFRESH_RATE_KEY, "dynamic");
 
-        boolean stylusEnabled  = mPreferences.getBoolean(STYLUS_MODE_KEY, false);
-        boolean forceRecognize = mPreferences.getBoolean(FORCE_STYLUS_KEY, false);
+        boolean stylusEnabled  = mPreferences.getBoolean(STYLUS_MODE_KEY, true);
+        boolean forceRecognize = mPreferences.getBoolean(FORCE_STYLUS_KEY, true);
 
         logInfo("Setup — stylus=" + stylusEnabled + ", force=" + forceRecognize
                 + ", rate=" + mCurrentRefreshMode);
@@ -113,8 +113,8 @@ public class PenUtils {
 
     private static void updateListenerState() {
         if (mPreferences == null) return;
-        boolean stylusOn = mPreferences.getBoolean(STYLUS_MODE_KEY, false);
-        boolean forceOn  = mPreferences.getBoolean(FORCE_STYLUS_KEY, false);
+        boolean stylusOn = mPreferences.getBoolean(STYLUS_MODE_KEY, true);
+        boolean forceOn  = mPreferences.getBoolean(FORCE_STYLUS_KEY, true);
         if (stylusOn || forceOn) {
             registerInputDeviceListener();
         } else {
@@ -136,7 +136,7 @@ public class PenUtils {
         SystemProperties.set("persist.vendor.parts.pen", "18");
 
         boolean stylusModeEnabled = mPreferences != null
-                && mPreferences.getBoolean(STYLUS_MODE_KEY, false);
+                && mPreferences.getBoolean(STYLUS_MODE_KEY, true);
         if (mRefreshUtils != null && stylusModeEnabled) {
             applyRefreshRateMode(mCurrentRefreshMode);
         } else {
@@ -162,8 +162,8 @@ public class PenUtils {
             logError("refreshPenMode called before setup");
             return;
         }
-        boolean forceRecognize    = mPreferences.getBoolean(FORCE_STYLUS_KEY, false);
-        boolean stylusModeEnabled = mPreferences.getBoolean(STYLUS_MODE_KEY, false);
+        boolean forceRecognize    = mPreferences.getBoolean(FORCE_STYLUS_KEY, true);
+        boolean stylusModeEnabled = mPreferences.getBoolean(STYLUS_MODE_KEY, true);
         boolean penDetected       = false;
 
         for (int id : mInputManager.getInputDeviceIds()) {
@@ -216,7 +216,7 @@ public class PenUtils {
         logInfo("Refresh rate mode → " + mode);
         mCurrentRefreshMode = mode;
         boolean stylusModeEnabled = mPreferences != null
-                && mPreferences.getBoolean(STYLUS_MODE_KEY, false);
+                && mPreferences.getBoolean(STYLUS_MODE_KEY, true);
         if (mPenModeEnabled && mRefreshUtils != null && stylusModeEnabled) {
             applyRefreshRateMode(mode);
         }
@@ -244,7 +244,7 @@ public class PenUtils {
         }
         updateListenerState();
         boolean stylusModeEnabled = mPreferences != null
-                && mPreferences.getBoolean(STYLUS_MODE_KEY, false);
+                && mPreferences.getBoolean(STYLUS_MODE_KEY, true);
         if (stylusModeEnabled) {
             refreshPenMode();
         } else {

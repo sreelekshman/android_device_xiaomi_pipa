@@ -11,7 +11,9 @@
 #include <errno.h>
 #include <string.h>
 
-#define VERSION_STRING "1.0.0"
+#include <cutils/properties.h>
+
+#define VERSION_STRING "1.0.1"
 
 // Device control definitions
 #define SET_CUR_VALUE 0
@@ -21,11 +23,15 @@
 #define TOUCH_DEV_PATH "/dev/xiaomi-touch"
 
 int main(int argc, char **argv) {
-    // Validate arguments
-    if(argc != 2) {
-        fprintf(stderr, "Xiaomi pen utility v%s\n", VERSION_STRING);
-        fprintf(stderr, "Usage: %s <value>\n", argv[0]);
-        return -1;
+    int value = 18; // Default to 18 (enabled)
+
+    // Parse the input value
+    if (argc == 2) {
+        value = atoi(argv[1]);
+    } else {
+        char prop_val[PROPERTY_VALUE_MAX];
+        property_get("persist.vendor.parts.pen", prop_val, "18");
+        value = atoi(prop_val);
     }
 
     // Open the touch device
@@ -36,15 +42,15 @@ int main(int argc, char **argv) {
         return -1;
     }
 
-    // Parse the input value
-    int value = atoi(argv[1]);
     if (value < 0 || value > 20) {
         fprintf(stderr, "Warning: Value %d outside normal range (0-20)\n", value);
     }
     fprintf(stdout, "Setting pen mode to: %d\n", value);
     
     // Prepare and send the command
-    int arg[2] = {TOUCH_PEN_MODE, value};
+    int arg[256] = {0};
+    arg[0] = TOUCH_PEN_MODE;
+    arg[1] = value;
     int result = ioctl(fd, TOUCH_IOC_SETMODE, &arg);
     
     // Check for errors

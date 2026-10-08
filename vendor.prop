@@ -283,6 +283,9 @@ persist.sys.oem.otg_support=true
 # PASR
 vendor.power.pasr.enabled=false
 
+# Pen
+persist.vendor.parts.pen=18
+
 # Perf
 ro.vendor.extension_library=libqti-perfd-client.so
 
