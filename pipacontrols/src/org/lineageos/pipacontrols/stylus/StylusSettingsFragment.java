@@ -64,6 +64,7 @@ public class StylusSettingsFragment extends PreferenceFragmentCompat implements
     private SharedPreferences    mPrefs;
     private MainSwitchPreference mStylusModePref;
     private SwitchPreference     mForceRecognizePref;
+    private SwitchPreference     mChargingNotifPref;
     private ListPreference       mRefreshRatePref;
     private FooterPreference     mFooterPref;
 
@@ -95,6 +96,7 @@ public class StylusSettingsFragment extends PreferenceFragmentCompat implements
         mPrefs              = PreferenceManager.getDefaultSharedPreferences(requireContext());
         mStylusModePref     = findPreference(STYLUS_MODE_KEY);
         mForceRecognizePref = findPreference(FORCE_RECOGNIZE_KEY);
+        mChargingNotifPref  = findPreference(PenChargingService.PREF_STYLUS_CHARGING_NOTIF);
         mRefreshRatePref    = findPreference(STYLUS_REFRESH_RATE_KEY);
         mFooterPref         = findPreference(FOOTER_KEY);
 
@@ -202,6 +204,12 @@ public class StylusSettingsFragment extends PreferenceFragmentCompat implements
         }
         if (mForceRecognizePref != null && mForceRecognizePref.isChecked() != forceRecog) {
             mForceRecognizePref.setChecked(forceRecog);
+        }
+        if (mChargingNotifPref != null) {
+            final boolean notifEnabled = mPrefs.getBoolean(PenChargingService.PREF_STYLUS_CHARGING_NOTIF, true);
+            if (mChargingNotifPref.isChecked() != notifEnabled) {
+                mChargingNotifPref.setChecked(notifEnabled);
+            }
         }
         if (mRefreshRatePref != null) {
             // Guard setValue(): calling it unconditionally triggers notifyChanged() →

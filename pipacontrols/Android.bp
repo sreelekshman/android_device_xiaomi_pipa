@@ -24,6 +24,7 @@ android_app {
         "androidx.preference_preference",
         "androidx.viewpager_viewpager",
         "androidx.recyclerview_recyclerview",
+        "androidx.cardview_cardview",
     ],
 
     optimize: {

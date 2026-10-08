@@ -26,6 +26,7 @@ import org.lineageos.pipacontrols.performance.cpuscheduler.CpuRampSpeedUtils;
 import org.lineageos.pipacontrols.performance.cpuscheduler.PreferBigCoresUtils;
 import org.lineageos.pipacontrols.performance.gpufreqcap.GpuFreqCapUtils;
 import org.lineageos.pipacontrols.performance.gpugovernor.GpuGovernorUtils;
+import org.lineageos.pipacontrols.stylus.PenChargingService;
 import org.lineageos.pipacontrols.stylus.PenUtils;
 import org.lineageos.pipacontrols.touch.BigCoresTouchUtils;
 import org.lineageos.pipacontrols.touch.BoostDurationUtils;
@@ -67,6 +68,12 @@ public class BootCompletedReceiver extends BroadcastReceiver {
         if (stylusEnabled || forceRecognize) {
             try { PenUtils.setup(context); } catch (Exception e) {
                 Log.e(TAG, ts() + "Pen init failed: " + e.getMessage()); }
+        }
+
+        try {
+            PenChargingService.start(context);
+        } catch (Exception e) {
+            Log.e(TAG, ts() + "Pen charging service init failed: " + e.getMessage());
         }
 
         try { CpuGovernorUtils.restore(context); } catch (Exception e) {
