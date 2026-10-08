@@ -6,6 +6,10 @@
 
 package org.lineageos.pipacontrols.bypasscharging;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 
 import androidx.preference.Preference;
@@ -21,6 +25,13 @@ public class BypassChargingFragment extends PreferenceFragmentCompat
     private static final String TAG = "BypassChargingFragment";
 
     private MainSwitchPreference mSwitchBar;
+
+    private final BroadcastReceiver mPowerReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            syncUiWithHardware();
+        }
+    };
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -47,6 +58,20 @@ public class BypassChargingFragment extends PreferenceFragmentCompat
         super.onResume();
         if (BypassChargingUtils.isSupported()) {
             syncUiWithHardware();
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(Intent.ACTION_POWER_CONNECTED);
+            filter.addAction(Intent.ACTION_POWER_DISCONNECTED);
+            requireContext().registerReceiver(mPowerReceiver, filter, Context.RECEIVER_EXPORTED);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (BypassChargingUtils.isSupported()) {
+            try {
+                requireContext().unregisterReceiver(mPowerReceiver);
+            } catch (IllegalArgumentException ignored) {}
         }
     }
 

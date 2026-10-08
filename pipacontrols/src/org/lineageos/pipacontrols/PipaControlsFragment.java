@@ -99,6 +99,21 @@ public class PipaControlsFragment extends PreferenceFragmentCompat {
         Log.i(TAG, "Pipa Controls fragment created");
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateBypassChargingSummary();
+    }
+
+    private void updateBypassChargingSummary() {
+        Preference pref = findPreference("pipa_bypass_charging");
+        if (pref != null && BypassChargingUtils.isSupported()) {
+            pref.setSummary(BypassChargingUtils.getCurrentHardwareState()
+                    ? R.string.bypass_charging_status_on
+                    : R.string.bypass_charging_summary);
+        }
+    }
+
     private void checkSupported(String key, boolean supported, int fallbackSummary) {
         if (supported) return;
         Preference pref = findPreference(key);
