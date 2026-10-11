@@ -30,7 +30,7 @@ public final class RefreshUtils {
     protected static final int STATE_EXTREME  = 3;
     protected static final int STATE_ULTRA    = 4;
 
-    private static final float REFRESH_STATE_DEFAULT  = 120f;
+    private static final float REFRESH_STATE_DEFAULT  = 144f;
     private static final float REFRESH_STATE_STANDARD = 60f;
     private static final float REFRESH_STATE_HIGH     = 90f;
     private static final float REFRESH_STATE_EXTREME  = 120f;
@@ -58,6 +58,9 @@ public final class RefreshUtils {
     }
 
     protected void getOldRate() {
+        if (org.lineageos.pipacontrols.stylus.PenUtils.isPenInUse()) {
+            return;
+        }
         defaultMaxRate = Settings.System.getFloat(mContext.getContentResolver(),
                 KEY_PEAK_REFRESH_RATE, REFRESH_STATE_DEFAULT);
     }
@@ -130,6 +133,15 @@ public final class RefreshUtils {
                 maxrate = REFRESH_STATE_ULTRA;    isAppInList = true;
             }
         }
+        if (org.lineageos.pipacontrols.stylus.PenUtils.isPenInUse()) {
+            if (!isAppInList) {
+                return;
+            }
+            if (maxrate > 120f) {
+                maxrate = 120f;
+            }
+        }
+
         Settings.System.putFloat(mContext.getContentResolver(), KEY_PEAK_REFRESH_RATE, maxrate);
     }
 }

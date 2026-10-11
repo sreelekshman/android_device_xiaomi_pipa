@@ -52,7 +52,7 @@ public class PenChargingManager {
     // ~3.6s of silence. This rejects transient spikes and objects that are
     // only waved past the pill.
     private static final int ATTACH_CONFIRM_SAMPLES = 2;
-    private static final int DETACH_CONFIRM_SAMPLES = 3;
+    private static final int DETACH_CONFIRM_SAMPLES = 1;
 
     private static int sAttachSamples = 0;
     private static int sDetachSamples = 0;
@@ -101,6 +101,22 @@ public class PenChargingManager {
     }
 
     /**
+     * Synchronously checks if the stylus is currently physically attached to the tablet dock,
+     * without waiting for multi-sample debounce.
+     */
+    public static boolean isPenPhysicallyAttached() {
+        String basePath = getAvailableHardwarePath();
+        if (basePath == null) return false;
+
+        Integer hall3 = readSysfsInt(basePath + "/reverse_chg_hall3");
+        Integer hall4 = readSysfsInt(basePath + "/reverse_chg_hall4");
+        // Hall GPIOs on pipa Nuvolta 1665 driver are active-low:
+        // 0 = magnet present (stylus docked)
+        // 1 = no magnet (stylus detached)
+        return (hall3 != null && hall3 == 0) || (hall4 != null && hall4 == 0);
+    }
+
+    /**
      * Get current stylus charging status from hardware and fallback subsystems.
      */
     public static PenChargingStatus getStatus(Context context) {
@@ -128,7 +144,8 @@ public class PenChargingManager {
             Integer hall4 = readSysfsInt(basePath + "/reverse_chg_hall4");
             Integer chgMode = readSysfsInt(basePath + "/reverse_chg_mode");
 
-            boolean hallAttached = (hall3 != null && hall3 == 1) || (hall4 != null && hall4 == 1);
+            // Active-low: 0 = magnet present (attached), 1 = detached
+            boolean hallAttached = (hall3 != null && hall3 == 0) || (hall4 != null && hall4 == 0);
             boolean modeActive = chgMode != null && chgMode == 1;
             // A meaningful sustained load on the coil: a real receiver.
             boolean currentFlowing = iout != null && iout >= MIN_ATTACH_CURRENT_MA;
@@ -140,22 +157,14 @@ public class PenChargingManager {
             }
             boolean socValid = soc != null && soc >= 0 && soc <= 100;
 
-            // The hall sensors trip on *any* magnet near the pill (cases,
-            // coins, toys...), but a stray magnet can neither draw charging
-            // current nor answer the SoC handshake. Attaching therefore
-            // strictly requires real current on the coil; hall state alone is
-            // never enough.
-            //
-            // While attached, a fully charged stylus tapers its current to
-            // almost zero, so it is held connected via its SoC report instead
-            // of being dropped for lack of current.
-            boolean attachEvidence = currentFlowing;
-            boolean holdEvidence = currentFlowing || (socValid && hallAttached && modeActive);
+            // Physical attachment is determined by active-low magnet hall sensors
+            boolean attachEvidence = hallAttached;
+            boolean holdEvidence = hallAttached;
 
             updateConfirmation(attachEvidence, holdEvidence);
 
             boolean isConnected = sStylusConfirmed;
-            boolean isCharging = sStylusConfirmed && (currentFlowing || socValid);
+            boolean isCharging = sStylusConfirmed && (currentFlowing || modeActive || socValid);
 
             int batteryLevel = -1;
             if (socValid) {
@@ -206,6 +215,15 @@ public class PenChargingManager {
             sAttachSamples = 0;
             sDetachSamples = 0;
         }
+    }
+
+    /**
+     * Initializes the confirmation state machine with the current physical attachment status.
+     */
+    public static synchronized void initDetectionState(boolean isAttached) {
+        sStylusConfirmed = isAttached;
+        sAttachSamples = isAttached ? ATTACH_CONFIRM_SAMPLES : 0;
+        sDetachSamples = 0;
     }
 
     /**

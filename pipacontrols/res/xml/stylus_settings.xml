@@ -18,17 +18,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/stylus_title">
 
-    <com.android.settingslib.widget.MainSwitchPreference
-        android:key="stylus_mode_key"
-        android:title="@string/stylus_switch_title"
-        android:defaultValue="true" />
-
     <SwitchPreference
         android:key="force_recognize_stylus_key"
         android:title="@string/force_stylus_switch_title"
         android:summary="@string/force_stylus_switch_summary"
-        android:defaultValue="true"
-        android:dependency="stylus_mode_key" />
+        android:defaultValue="false" />
 
     <ListPreference
         android:key="stylus_refresh_rate_key"
@@ -36,8 +30,7 @@
         android:summary="%s"
         android:entries="@array/refresh_rate_entries"
         android:entryValues="@array/refresh_rate_values"
-        android:defaultValue="dynamic"
-        android:dependency="stylus_mode_key" />
+        android:defaultValue="dynamic" />
 
     <SwitchPreference
         android:key="stylus_charging_notification_key"

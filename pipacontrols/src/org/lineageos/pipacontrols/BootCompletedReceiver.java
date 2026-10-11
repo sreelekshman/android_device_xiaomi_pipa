@@ -56,8 +56,6 @@ public class BootCompletedReceiver extends BroadcastReceiver {
     private static void initPeripherals(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
-        boolean stylusEnabled   = prefs.getBoolean("stylus_mode_key", true);
-        boolean forceRecognize  = prefs.getBoolean("force_recognize_stylus_key", true);
         boolean keyboardEnabled = prefs.getBoolean("keyboard_mode_key", false);
 
         if (keyboardEnabled) {
@@ -65,9 +63,10 @@ public class BootCompletedReceiver extends BroadcastReceiver {
                 Log.e(TAG, ts() + "Keyboard init failed: " + e.getMessage()); }
         }
 
-        if (stylusEnabled || forceRecognize) {
-            try { PenUtils.setup(context); } catch (Exception e) {
-                Log.e(TAG, ts() + "Pen init failed: " + e.getMessage()); }
+        try {
+            PenUtils.setup(context);
+        } catch (Exception e) {
+            Log.e(TAG, ts() + "Pen init failed: " + e.getMessage());
         }
 
         try {

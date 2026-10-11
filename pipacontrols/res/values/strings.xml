@@ -20,13 +20,12 @@
     <!-- Stylus -->
     <string name="stylus_title">Stylus</string>
     <string name="stylus_summary">Stylus Settings</string>
-    <string name="stylus_switch_title">Stylus Mode</string>
-    <string name="stylus_tile_label">Stylus Mode</string>
+    <string name="stylus_tile_label">Stylus</string>
     <string name="force_stylus_switch_title">Force recognize stylus</string>
-    <string name="force_stylus_switch_summary">Allows the official stylus to work without Bluetooth and enables support for third-party pens. Also forces the display to operate at 60/120 Hz even when no pen is connected.</string>
+    <string name="force_stylus_switch_summary">Forces pen digitizer mode and 60/120 Hz refresh rate when detached without waiting for Bluetooth handshake, enabling third-party pens.</string>
     <string name="stylus_refresh_rate_title">Refresh rate</string>
     <string name="stylus_refresh_rate_summary">Select display refresh rate for stylus mode</string>
-    <string name="stylus_more_info">Stylus Mode enables pen-compatible refresh rates when a supported stylus is connected. The display switches to 60 Hz or 120 Hz only while the pen is connected.</string>
+    <string name="stylus_more_info">When the stylus is in use (detached from the magnetic charger), the display automatically caps to 60/120 Hz to support stylus input. When the stylus is magnetically docked to charge or disconnected, the full 144 Hz refresh rate is automatically restored.</string>
     <string name="refresh_rate_dynamic">Dynamic (60/120Hz)</string>
     <string name="refresh_rate_60hz">Fixed 60Hz</string>
     <string name="refresh_rate_120hz">Fixed 120Hz</string>

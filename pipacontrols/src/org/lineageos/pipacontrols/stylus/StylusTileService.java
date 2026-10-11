@@ -24,7 +24,7 @@ import androidx.preference.PreferenceManager;
 import org.lineageos.pipacontrols.R;
 
 /**
- * Quick Settings tile for Stylus Mode.
+ * Quick Settings tile for Stylus / Force Recognize.
  */
 public class StylusTileService extends TileService {
 
@@ -33,20 +33,17 @@ public class StylusTileService extends TileService {
     static final String ACTION_STYLUS_CHANGED =
             "org.lineageos.pipacontrols.STYLUS_MODE_CHANGED";
 
-    private static final String STYLUS_MODE_KEY         = "stylus_mode_key";
+    private static final String FORCE_RECOGNIZE_KEY     = "force_recognize_stylus_key";
     private static final String STYLUS_REFRESH_RATE_KEY = "stylus_refresh_rate_key";
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
-    /**
-     * Reads prefs at execution time — never at scheduling time — to avoid stale state.
-     */
     private final Runnable mDelayedUpdateRunnable = () -> {
-        boolean current = PreferenceManager
+        boolean forceActive = PreferenceManager
                 .getDefaultSharedPreferences(StylusTileService.this)
-                .getBoolean(STYLUS_MODE_KEY, false);
-        Log.d(TAG, "Delayed retry — stylus=" + current);
-        updateTile(current);
+                .getBoolean(FORCE_RECOGNIZE_KEY, false);
+        Log.d(TAG, "Delayed retry — forceActive=" + forceActive);
+        updateTile(forceActive);
     };
 
     // -----------------------------------------------------------------------
@@ -57,11 +54,11 @@ public class StylusTileService extends TileService {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (!ACTION_STYLUS_CHANGED.equals(intent.getAction())) return;
-            boolean active = PreferenceManager
+            boolean forceActive = PreferenceManager
                     .getDefaultSharedPreferences(context)
-                    .getBoolean(STYLUS_MODE_KEY, false);
-            Log.d(TAG, "LocalBroadcast — stylus=" + active);
-            updateTile(active);
+                    .getBoolean(FORCE_RECOGNIZE_KEY, false);
+            Log.d(TAG, "LocalBroadcast — forceActive=" + forceActive);
+            updateTile(forceActive);
         }
     };
 
@@ -76,16 +73,16 @@ public class StylusTileService extends TileService {
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mSettingsReceiver, new IntentFilter(ACTION_STYLUS_CHANGED));
 
-        boolean active = PreferenceManager
+        boolean forceActive = PreferenceManager
                 .getDefaultSharedPreferences(this)
-                .getBoolean(STYLUS_MODE_KEY, false);
-        Log.d(TAG, "onStartListening — stylus=" + active
+                .getBoolean(FORCE_RECOGNIZE_KEY, false);
+
+        Log.d(TAG, "onStartListening — forceActive=" + forceActive
                 + ", tile=" + (getQsTile() != null ? "ok" : "null"));
 
-        updateTile(active);
+        updateTile(forceActive);
 
-        // 350 ms retry for the cold-boot binder window where getQsTile() is
-        // transiently null. Lambda reads current prefs at execution time.
+        // 350 ms retry for cold-boot window where getQsTile() is transiently null.
         mHandler.removeCallbacks(mDelayedUpdateRunnable);
         mHandler.postDelayed(mDelayedUpdateRunnable, 350);
     }
@@ -109,23 +106,19 @@ public class StylusTileService extends TileService {
             return;
         }
 
-        final boolean newState = (tile.getState() != Tile.STATE_ACTIVE);
-        Log.d(TAG, "onClick — newState=" + newState);
-
-        // Immediate visual feedback before any I/O.
-        updateTile(newState);
-
-        final String refreshRate = PreferenceManager
+        final boolean currentForce = PreferenceManager
                 .getDefaultSharedPreferences(this)
-                .getString(STYLUS_REFRESH_RATE_KEY, "dynamic");
+                .getBoolean(FORCE_RECOGNIZE_KEY, false);
+        final boolean newForce = !currentForce;
+        Log.d(TAG, "onClick — toggle forceActive to " + newForce);
 
         PreferenceManager.getDefaultSharedPreferences(this)
                 .edit()
-                .putBoolean(STYLUS_MODE_KEY, newState)
+                .putBoolean(FORCE_RECOGNIZE_KEY, newForce)
                 .apply();
 
-        PenUtils.onStylusModeChanged(newState);
-        if (newState) PenUtils.setRefreshRateMode(refreshRate);
+        PenUtils.onForceRecognizeChanged(newForce);
+        updateTile(newForce);
 
         LocalBroadcastManager.getInstance(this)
                 .sendBroadcast(new Intent(ACTION_STYLUS_CHANGED));
@@ -135,27 +128,36 @@ public class StylusTileService extends TileService {
     // Tile rendering
     // -----------------------------------------------------------------------
 
-    /**
-     * Applies state, icon, and refresh-rate subtitle to the tile.
-     * Reads refresh rate from prefs at call time so the subtitle stays correct
-     * after a refresh-rate change even without a full tile rebind.
-     */
-    private void updateTile(boolean active) {
+    private void updateTile(boolean forceActive) {
         final Tile tile = getQsTile();
         if (tile == null) {
             Log.w(TAG, "updateTile — tile is null");
             return;
         }
 
-        final String rate = PreferenceManager
+        boolean inUse = PenUtils.isPenInUse();
+        boolean isAttached = PenUtils.isPenAttached();
+        String rate = PreferenceManager
                 .getDefaultSharedPreferences(this)
                 .getString(STYLUS_REFRESH_RATE_KEY, "dynamic");
 
-        tile.setState(active ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
+        boolean isActiveTile = inUse || forceActive;
+
+        tile.setState(isActiveTile ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
         tile.setIcon(Icon.createWithResource(this,
-                active ? R.drawable.ic_stylus_tile
-                       : R.drawable.ic_stylus_tile_off));
-        tile.setSubtitle(rateLabel(rate));
+                isActiveTile ? R.drawable.ic_stylus_tile
+                             : R.drawable.ic_stylus_tile_off));
+
+        if (inUse) {
+            tile.setSubtitle("In use • " + rateLabel(rate));
+        } else if (isAttached) {
+            tile.setSubtitle("Docked • 144 Hz");
+        } else if (forceActive) {
+            tile.setSubtitle("Force ready");
+        } else {
+            tile.setSubtitle("144 Hz");
+        }
+
         tile.updateTile();
     }
 

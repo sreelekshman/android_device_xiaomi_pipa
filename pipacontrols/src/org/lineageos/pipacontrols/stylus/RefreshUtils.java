@@ -9,12 +9,8 @@ package org.lineageos.pipacontrols.stylus;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.hardware.display.DisplayManager;
-import android.os.Handler;
-import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.Display;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -23,243 +19,144 @@ import java.util.Locale;
 public final class RefreshUtils {
     private static final String TAG = "XiaomiRefreshUtils";
     private static final boolean DEBUG = true;
-    
-    private static final String KEY_PEAK_REFRESH_RATE = "peak_refresh_rate";
-    private static final String KEY_MIN_REFRESH_RATE = "min_refresh_rate";
-    private static final String KEY_USER_REFRESH_RATE = "user_refresh_rate";
-    private static final String KEY_PEN_MODE = "pen_mode";
-    private static final String PREF_FILE_NAME = "pen_refresh_prefs";
-    
-    // Pen-compatible refresh rates
-    private static final float PEN_MIN_RATE = 60f;
-    private static final float PEN_MAX_RATE = 120f;
-    
-    private Context mContext;
-    private SharedPreferences mSharedPrefs;
-    private DisplayManager mDisplayManager;
-    private DisplayManager.DisplayListener mDisplayListener;
-    private Handler mHandler;
-    
-    // State tracking
-    private volatile boolean mPenModeActive = false;
-    private volatile boolean mIsEnforcingRate = false;
-    private volatile boolean mListenerRegistered = false;
-    private volatile float mTargetMinRate = PEN_MIN_RATE;
-    private volatile float mTargetMaxRate = PEN_MAX_RATE;
 
-    protected RefreshUtils(Context context) {
-        mContext = context;
-        mSharedPrefs = context.getSharedPreferences(PREF_FILE_NAME, Context.MODE_PRIVATE);
-        mDisplayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
-        mHandler = new Handler(Looper.getMainLooper());
-        
-        createDisplayListener();
-        logInfo("RefreshUtils initialized");
+    public static final String KEY_PEAK_REFRESH_RATE = "peak_refresh_rate";
+    public static final String KEY_MIN_REFRESH_RATE  = "min_refresh_rate";
+    private static final String PREF_FILE_NAME       = "pen_refresh_prefs";
+
+    private static final String KEY_IS_CAPPED        = "is_capped";
+    private static final String KEY_SAVED_PEAK_RATE  = "saved_peak_rate";
+    private static final String KEY_SAVED_MIN_RATE   = "saved_min_rate";
+
+    // Pipa panel standard refresh rates
+    public static final float PANEL_DEFAULT_PEAK_RATE = 144f;
+    public static final float PANEL_DEFAULT_MIN_RATE  = 60f;
+    public static final float PEN_MAX_RATE            = 120f;
+    public static final float PEN_MIN_RATE            = 60f;
+
+    private final Context mContext;
+    private final SharedPreferences mSharedPrefs;
+    private volatile boolean mIsCapped = false;
+
+    public RefreshUtils(Context context) {
+        mContext = context.getApplicationContext();
+        mSharedPrefs = mContext.getSharedPreferences(PREF_FILE_NAME, Context.MODE_PRIVATE);
+        mIsCapped = mSharedPrefs.getBoolean(KEY_IS_CAPPED, false);
+        logInfo("RefreshUtils initialized (initially capped=" + mIsCapped + ")");
     }
 
-    // Creates the display listener but registers when pen mode is enabled
-    private void createDisplayListener() {
-        mDisplayListener = new DisplayManager.DisplayListener() {
-            @Override
-            public void onDisplayAdded(int displayId) {
-                // Not needed for our use case
-            }
-
-            @Override
-            public void onDisplayRemoved(int displayId) {
-                // Not needed for our use case
-            }
-
-            @Override
-            public void onDisplayChanged(int displayId) {
-                // Only monitor the default display (main screen)
-                if (displayId == Display.DEFAULT_DISPLAY) {
-                    // Post to handler to avoid potential deadlocks
-                    mHandler.post(() -> checkAndEnforceRefreshRate());
-                }
-            }
-        };
+    public boolean isCapped() {
+        return mIsCapped;
     }
 
-    // Register the display listener to start monitoring refresh rate changes.
-    private void registerDisplayListener() {
-        if (!mListenerRegistered && mDisplayManager != null && mDisplayListener != null) {
-            mDisplayManager.registerDisplayListener(mDisplayListener, mHandler);
-            mListenerRegistered = true;
-            logInfo("Display listener registered - active monitoring enabled");
+    public synchronized void capRefreshRate(String mode) {
+        float minRate;
+        float maxRate;
+        switch (mode) {
+            case "60":
+                minRate = PEN_MIN_RATE;
+                maxRate = PEN_MIN_RATE;
+                break;
+            case "120":
+                minRate = PEN_MAX_RATE;
+                maxRate = PEN_MAX_RATE;
+                break;
+            case "dynamic":
+            default:
+                minRate = PEN_MIN_RATE;
+                maxRate = PEN_MAX_RATE;
+                break;
         }
+        applyCap(minRate, maxRate, mode);
     }
 
-    // Unregister the display listener to stop monitoring upon disabling pen mode.
-    private void unregisterDisplayListener() {
-        if (mListenerRegistered && mDisplayManager != null && mDisplayListener != null) {
-            mDisplayManager.unregisterDisplayListener(mDisplayListener);
-            mListenerRegistered = false;
-            logInfo("Display listener unregistered - monitoring disabled");
-        }
+    public synchronized void setPenRefreshRate() {
+        capRefreshRate("dynamic");
     }
 
-    private void checkAndEnforceRefreshRate() {
-        // Skip if pen mode is not active or we're already enforcing
-        if (!mPenModeActive || mIsEnforcingRate) {
-            return;
+    public synchronized void setFixedRefreshRate(float fixedRate) {
+        capRefreshRate(String.valueOf((int) fixedRate));
+    }
+
+    private synchronized void applyCap(float minRate, float maxRate, String modeName) {
+        if (!mIsCapped) {
+            float currentPeak = Settings.System.getFloat(
+                    mContext.getContentResolver(), KEY_PEAK_REFRESH_RATE, PANEL_DEFAULT_PEAK_RATE);
+            float currentMin = Settings.System.getFloat(
+                    mContext.getContentResolver(), KEY_MIN_REFRESH_RATE, PANEL_DEFAULT_MIN_RATE);
+
+            // If currentPeak is already capped or invalid, fall back to panel default (144Hz)
+            float savedPeak = (currentPeak > PEN_MAX_RATE) ? currentPeak : PANEL_DEFAULT_PEAK_RATE;
+            float savedMin = (currentMin > 0f) ? currentMin : PANEL_DEFAULT_MIN_RATE;
+
+            mSharedPrefs.edit()
+                    .putFloat(KEY_SAVED_PEAK_RATE, savedPeak)
+                    .putFloat(KEY_SAVED_MIN_RATE, savedMin)
+                    .putBoolean(KEY_IS_CAPPED, true)
+                    .apply();
+
+            logInfo("Saving pre-cap rates: min=" + savedMin + "Hz, peak=" + savedPeak + "Hz");
         }
 
-        try {
-            Display display = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
-            if (display == null) {
-                logError("Could not get default display");
-                return;
-            }
-
-            float currentRate = display.getRefreshRate();
-            logDebug("Current refresh rate: " + currentRate + "Hz");
-
-            // Check if current rate is outside our target range
-            if (!isRateInTargetRange(currentRate)) {
-                logInfo("Detected rate outside target range: " + currentRate + 
-                       "Hz - enforcing " + mTargetMinRate + "-" + mTargetMaxRate + "Hz");
-                
-                // Set flag to prevent recursive calls
-                mIsEnforcingRate = true;
-                
-                // Select and apply the appropriate rate
-                float targetRate = selectBestRate(currentRate);
-                forceRefreshRate(mTargetMinRate, mTargetMaxRate, targetRate);
-                
-                // Reset flag after a delay to allow enforcement to complete
-                mHandler.postDelayed(() -> mIsEnforcingRate = false, 500);
-            }
-        } catch (Exception e) {
-            logError("Error checking refresh rate: " + e.getMessage());
-            mIsEnforcingRate = false;
-        }
-    }
-
-    private boolean isRateInTargetRange(float rate) {
-        // Check if rate is within our min-max range (with tolerance for floating point)
-        return (rate >= (mTargetMinRate - 1f)) && (rate <= (mTargetMaxRate + 1f));
-    }
-
-    private float selectBestRate(float currentRate) {
-        // If we're in fixed mode (min == max), use that
-        if (Math.abs(mTargetMinRate - mTargetMaxRate) < 1f) {
-            return mTargetMinRate;
-        }
-        
-        // For dynamic mode, choose closest valid rate
-        if (currentRate < 90f) {
-            return mTargetMinRate;
-        } else {
-            return mTargetMaxRate;
-        }
-    }
-
-    // Force the display to specific refresh rates
-    private void forceRefreshRate(float minRate, float maxRate, float userRate) {
+        mIsCapped = true;
         try {
             Settings.System.putFloat(mContext.getContentResolver(), KEY_MIN_REFRESH_RATE, minRate);
             Settings.System.putFloat(mContext.getContentResolver(), KEY_PEAK_REFRESH_RATE, maxRate);
-            Settings.System.putFloat(mContext.getContentResolver(), KEY_USER_REFRESH_RATE, userRate);
-            logInfo("Forced refresh rate: " + minRate + "-" + maxRate + "Hz (user: " + userRate + "Hz)");
+            logInfo("Capped refresh rate for pen mode (" + modeName + "): " + minRate + "-" + maxRate + "Hz");
         } catch (Exception e) {
-            logError("Failed to force refresh rate: " + e.getMessage());
+            logError("Failed to apply pen refresh rate cap: " + e.getMessage());
         }
     }
 
-    protected void setPenRefreshRate() {
-        setRefreshRateRange(PEN_MIN_RATE, PEN_MAX_RATE, "Dynamic (60-120Hz)");
-    }
-
-    protected void setFixedRefreshRate(float fixedRate) {
-        String modeName = "Fixed " + (int)fixedRate + "Hz";
-        setRefreshRateRange(fixedRate, fixedRate, modeName);
-    }
-
-    private void setRefreshRateRange(float minRate, float maxRate, String modeName) {
-        boolean penMode = mSharedPrefs.getBoolean(KEY_PEN_MODE, false);
-
-        if (!penMode) {
-            logInfo("Enabling pen mode with " + modeName);
-            
-            // Get current refresh rate settings
-            float currentMaxRate = Settings.System.getFloat(mContext.getContentResolver(), 
-                                                           KEY_PEAK_REFRESH_RATE, 144f);
-            float currentMinRate = Settings.System.getFloat(mContext.getContentResolver(), 
-                                                           KEY_MIN_REFRESH_RATE, 144f);
-            float currentUserRate = Settings.System.getFloat(mContext.getContentResolver(), 
-                                                            "user_refresh_rate", 0f);
-
-            // Save current values for restoration later
-            mSharedPrefs.edit()
-                    .putFloat(KEY_MIN_REFRESH_RATE, currentMinRate)
-                    .putFloat(KEY_PEAK_REFRESH_RATE, currentMaxRate)
-                    .putFloat(KEY_USER_REFRESH_RATE, currentUserRate)
-                    .putBoolean(KEY_PEN_MODE, true)
-                    .apply();
-        } else {
-            logInfo("Updating pen mode to " + modeName);
+    public synchronized void restoreRefreshRate() {
+        if (!mIsCapped) {
+            logDebug("Not currently capped, skipping restore");
+            return;
         }
 
-        // Store target rates for enforcement
-        mTargetMinRate = minRate;
-        mTargetMaxRate = maxRate;
+        float savedPeak = mSharedPrefs.getFloat(KEY_SAVED_PEAK_RATE, PANEL_DEFAULT_PEAK_RATE);
+        float savedMin = mSharedPrefs.getFloat(KEY_SAVED_MIN_RATE, PANEL_DEFAULT_MIN_RATE);
 
-        // Apply the new rates
-        float userRate = (minRate == maxRate) ? minRate : maxRate;
-        forceRefreshRate(minRate, maxRate, userRate);
-        
-        // Enable active monitoring
-        mPenModeActive = true;
-        registerDisplayListener();
-        
-        // Force initial rate check after a short delay
-        mHandler.postDelayed(() -> checkAndEnforceRefreshRate(), 200);
-        
-        logInfo("Pen mode configured: " + modeName + " with active enforcement");
+        // Safety fallback: if saved peak was <= 120Hz, always restore to 144Hz panel rate
+        if (savedPeak <= PEN_MAX_RATE) {
+            savedPeak = PANEL_DEFAULT_PEAK_RATE;
+        }
+
+        mSharedPrefs.edit()
+                .putBoolean(KEY_IS_CAPPED, false)
+                .apply();
+        mIsCapped = false;
+
+        try {
+            Settings.System.putFloat(mContext.getContentResolver(), KEY_MIN_REFRESH_RATE, savedMin);
+            Settings.System.putFloat(mContext.getContentResolver(), KEY_PEAK_REFRESH_RATE, savedPeak);
+            logInfo("Restored refresh rate: min=" + savedMin + "Hz, peak=" + savedPeak + "Hz");
+        } catch (Exception e) {
+            logError("Failed to restore refresh rate: " + e.getMessage());
+        }
     }
 
-    protected void setDefaultRefreshRate() {
-        logInfo("Disabling pen mode - restoring original refresh rates");
-        
-        // Disable active monitoring first
-        mPenModeActive = false;
-        unregisterDisplayListener();
-        
-        // Get saved refresh rate values
-        float defaultMinRate = mSharedPrefs.getFloat(KEY_MIN_REFRESH_RATE, 144f);
-        float defaultMaxRate = mSharedPrefs.getFloat(KEY_PEAK_REFRESH_RATE, 144f);
-        float defaultUserRate = mSharedPrefs.getFloat(KEY_USER_REFRESH_RATE, 0f);
-
-        // Mark pen mode as disabled
-        mSharedPrefs.edit().putBoolean(KEY_PEN_MODE, false).apply();
-
-        // Restore original refresh rate values
-        Settings.System.putFloat(mContext.getContentResolver(), KEY_MIN_REFRESH_RATE, defaultMinRate);
-        Settings.System.putFloat(mContext.getContentResolver(), KEY_PEAK_REFRESH_RATE, defaultMaxRate);
-        Settings.System.putFloat(mContext.getContentResolver(), "user_refresh_rate", defaultUserRate);
-        
-        logInfo("Default refresh rates restored: " + defaultMinRate + "-" + defaultMaxRate + "Hz");
+    public synchronized void setDefaultRefreshRate() {
+        restoreRefreshRate();
     }
 
-    protected void cleanup() {
-        unregisterDisplayListener();
+    public void cleanup() {
+        // No background listeners to unregister
     }
 
-    // Logging helpers with timestamps
     private void logDebug(String message) {
-        if (DEBUG) Log.d(TAG, getTimestamp() + message);
+        if (DEBUG) Log.d(TAG, ts() + message);
     }
-    
+
     private void logInfo(String message) {
-        Log.i(TAG, getTimestamp() + message);
+        Log.i(TAG, ts() + message);
     }
-    
+
     private void logError(String message) {
-        Log.e(TAG, getTimestamp() + message);
+        Log.e(TAG, ts() + message);
     }
-    
-    private String getTimestamp() {
+
+    private static String ts() {
         return "[" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date()) + "] ";
     }
 }

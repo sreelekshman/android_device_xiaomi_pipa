@@ -37,8 +37,8 @@ import org.lineageos.pipacontrols.R;
 
 /**
  * Persistent Background Service managing the iOS-inspired stylus charging experience:
- * 1. On Connect / Attach: Triggers charging popup.
- * 2. On Detach / Remove: Triggers disconnected popup.
+ * 1. On Connect / Attach: Triggers charging popup + ongoing notification.
+ * 2. On Detach / Remove: Triggers disconnected popup + cleans up notification.
  * 3. On 100% Full Charge: Triggers fully charged popup (once per cycle).
  * 4. On Significant Battery Update: Updates popup in-place without duplicating windows.
  * 5. On Low/Critical Battery: Alerts with warning popup.
@@ -55,7 +55,7 @@ public class PenChargingService extends Service {
     public static final String EXTRA_BATTERY_LEVEL = "battery_level";
     public static final String EXTRA_DEVICE_NAME = "device_name";
 
-    private static final long POLL_INTERVAL_ACTIVE_MS = 1200L;
+    private static final long POLL_INTERVAL_ACTIVE_MS = 600L; // 600ms fast polling while screen is on
     private static final long NINETY_NINE_TO_FULL_MS = 60000L; // 1 minute
     private static final int BATTERY_LEVEL_UNKNOWN = Integer.MIN_VALUE;
     private static final int LOW_BATTERY_THRESHOLD = 15;
@@ -70,6 +70,7 @@ public class PenChargingService extends Service {
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private boolean mIsMonitoring = false;
+    private boolean mWasAttached = false;
     private boolean mWasCharging = false;
     private boolean mHasShown100PercentPopup = false;
     private int mLastBatteryLevel = BATTERY_LEVEL_UNKNOWN;
@@ -90,11 +91,11 @@ public class PenChargingService extends Service {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (Intent.ACTION_SCREEN_ON.equals(action)) {
-                if (PenChargingManager.DEBUG) Log.d(TAG, "Screen turned ON, starting active monitoring");
+                if (PenChargingManager.DEBUG) Log.d(TAG, "Screen turned ON, resuming active monitoring");
                 startMonitoring();
             } else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
-                if (PenChargingManager.DEBUG) Log.d(TAG, "Screen turned OFF, pausing monitoring");
-                stopMonitoring();
+                if (PenChargingManager.DEBUG) Log.d(TAG, "Screen turned OFF, pausing active monitoring");
+                pauseMonitoring();
             } else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
                 handleBluetoothConnected(intent);
             } else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action) ||
@@ -136,14 +137,28 @@ public class PenChargingService extends Service {
         }
 
         mPillController = new StylusPillController(this);
-
         registerReceivers();
+
+        mWasAttached = PenChargingManager.isPenPhysicallyAttached();
+        PenChargingManager.initDetectionState(mWasAttached);
+        PenUtils.onPenAttachmentChanged(mWasAttached);
+
+        if (mWasAttached) {
+            PenChargingManager.PenChargingStatus initialStatus = PenChargingManager.getStatus(this);
+            int initialLevel = (initialStatus != null && initialStatus.batteryLevel >= 0)
+                    ? initialStatus.batteryLevel : -1;
+            mLastBatteryLevel = initialLevel;
+            mWasCharging = true;
+            if (initialLevel >= 100) {
+                mHasShown100PercentPopup = true;
+            }
+        }
 
         if (mPowerManager != null && mPowerManager.isInteractive()) {
             startMonitoring();
         }
 
-        Log.i(TAG, "PenChargingService initialized with Material You charging controller");
+        Log.i(TAG, "PenChargingService initialized (initially attached=" + mWasAttached + ")");
     }
 
     @Override
@@ -190,18 +205,23 @@ public class PenChargingService extends Service {
         }
     }
 
-    private void stopMonitoring() {
+    private void pauseMonitoring() {
         if (mIsMonitoring) {
             mIsMonitoring = false;
             mHandler.removeCallbacks(mPollRunnable);
-            hideNotification();
             mPillController.hidePill();
-            PenChargingManager.resetDetectionState();
-            mWasCharging = false;
-            mHasShown100PercentPopup = false;
-            mLastBatteryLevel = BATTERY_LEVEL_UNKNOWN;
-            mFirstSeen99AtMs = null;
         }
+    }
+
+    private void stopMonitoring() {
+        pauseMonitoring();
+        hideNotification();
+        PenChargingManager.resetDetectionState();
+        mWasAttached = false;
+        mWasCharging = false;
+        mHasShown100PercentPopup = false;
+        mLastBatteryLevel = BATTERY_LEVEL_UNKNOWN;
+        mFirstSeen99AtMs = null;
     }
 
     private void handleBluetoothConnected(Intent intent) {
@@ -218,17 +238,18 @@ public class PenChargingService extends Service {
         String name = getStylusDeviceName();
         PenChargingManager.PenChargingStatus status = PenChargingManager.getStatus(this);
 
+        // ACTION_ACL_CONNECTED fires for every Bluetooth device (earbuds,
+        // watches, ...). Only react when the wireless charging hardware has
+        // actually confirmed a stylus on the pill.
         if (status == null || !status.isConnected) {
             return;
         }
 
         int level = status.batteryLevel;
-        if (isPopupEnabled()) {
-            if (status.isCharging) {
-                mPillController.showPopup(level >= 100 ? StylusState.FULLY_CHARGED : StylusState.CHARGING, level, name);
-            } else {
-                mPillController.showPopup(StylusState.CONNECTED, level, name);
-            }
+        if (status.isCharging) {
+            mPillController.showPopup(level >= 100 ? StylusState.FULLY_CHARGED : StylusState.CHARGING, level, name);
+        } else {
+            mPillController.showPopup(StylusState.CONNECTED, level, name);
         }
     }
 
@@ -326,15 +347,17 @@ public class PenChargingService extends Service {
     private void updateChargingStatus() {
         PenChargingManager.PenChargingStatus status = PenChargingManager.getStatus(this);
         String penName = getStylusDeviceName();
-        if (status == null || !status.isConnected || !status.isCharging) {
-            if (mWasCharging) {
-                StylusState detachState = StylusState.DISCONNECTED;
-                if (mLastBatteryLevel >= 0 && mLastBatteryLevel <= CRITICAL_BATTERY_THRESHOLD) {
-                    detachState = StylusState.CRITICAL_BATTERY;
-                } else if (mLastBatteryLevel >= 0 && mLastBatteryLevel <= LOW_BATTERY_THRESHOLD) {
-                    detachState = StylusState.LOW_BATTERY;
-                }
-                if (isPopupEnabled()) {
+        boolean isAttached = (status != null && status.isConnected);
+
+        if (mWasAttached != isAttached) {
+            mWasAttached = isAttached;
+            PenUtils.onPenAttachmentChanged(isAttached);
+
+            if (!isAttached) {
+                // Stylus detached: warn if battery is low
+                if (mLastBatteryLevel >= 0 && mLastBatteryLevel <= LOW_BATTERY_THRESHOLD && isPopupEnabled()) {
+                    StylusState detachState = (mLastBatteryLevel <= CRITICAL_BATTERY_THRESHOLD)
+                            ? StylusState.CRITICAL_BATTERY : StylusState.LOW_BATTERY;
                     mPillController.showPopup(detachState, mLastBatteryLevel, penName);
                 }
                 hideNotification();
@@ -342,7 +365,11 @@ public class PenChargingService extends Service {
                 mHasShown100PercentPopup = false;
                 mLastBatteryLevel = BATTERY_LEVEL_UNKNOWN;
                 mFirstSeen99AtMs = null;
+                return;
             }
+        }
+
+        if (!isAttached) {
             return;
         }
 

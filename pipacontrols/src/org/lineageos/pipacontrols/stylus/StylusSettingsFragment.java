@@ -36,7 +36,6 @@ import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreference;
 
 import com.android.settingslib.widget.FooterPreference;
-import com.android.settingslib.widget.MainSwitchPreference;
 
 import org.lineageos.pipacontrols.R;
 
@@ -52,7 +51,6 @@ public class StylusSettingsFragment extends PreferenceFragmentCompat implements
 
     private static final String TAG = "XiaomiStylusSettings";
 
-    private static final String STYLUS_MODE_KEY         = "stylus_mode_key";
     private static final String FORCE_RECOGNIZE_KEY     = "force_recognize_stylus_key";
     private static final String FOOTER_KEY              = "footer_key";
     private static final String STYLUS_REFRESH_RATE_KEY = "stylus_refresh_rate_key";
@@ -62,7 +60,6 @@ public class StylusSettingsFragment extends PreferenceFragmentCompat implements
     private static final String RATE_120     = "120";
 
     private SharedPreferences    mPrefs;
-    private MainSwitchPreference mStylusModePref;
     private SwitchPreference     mForceRecognizePref;
     private SwitchPreference     mChargingNotifPref;
     private ListPreference       mRefreshRatePref;
@@ -94,7 +91,6 @@ public class StylusSettingsFragment extends PreferenceFragmentCompat implements
         addPreferencesFromResource(R.xml.stylus_settings);
 
         mPrefs              = PreferenceManager.getDefaultSharedPreferences(requireContext());
-        mStylusModePref     = findPreference(STYLUS_MODE_KEY);
         mForceRecognizePref = findPreference(FORCE_RECOGNIZE_KEY);
         mChargingNotifPref  = findPreference(PenChargingService.PREF_STYLUS_CHARGING_NOTIF);
         mRefreshRatePref    = findPreference(STYLUS_REFRESH_RATE_KEY);
@@ -139,17 +135,7 @@ public class StylusSettingsFragment extends PreferenceFragmentCompat implements
 
         mHandlingKey = key;
         try {
-            if (STYLUS_MODE_KEY.equals(key)) {
-                boolean enabled = prefs.getBoolean(key, false);
-                logInfo("Stylus mode → " + enabled);
-                PenUtils.onStylusModeChanged(enabled);
-                if (enabled) {
-                    PenUtils.setRefreshRateMode(
-                            prefs.getString(STYLUS_REFRESH_RATE_KEY, RATE_DYNAMIC));
-                }
-                notifyTile();
-
-            } else if (FORCE_RECOGNIZE_KEY.equals(key)) {
+            if (FORCE_RECOGNIZE_KEY.equals(key)) {
                 boolean enabled = prefs.getBoolean(key, false);
                 logInfo("Force recognize → " + enabled);
                 PenUtils.onForceRecognizeChanged(enabled);
@@ -158,10 +144,7 @@ public class StylusSettingsFragment extends PreferenceFragmentCompat implements
             } else if (STYLUS_REFRESH_RATE_KEY.equals(key)) {
                 String rate = prefs.getString(key, RATE_DYNAMIC);
                 logInfo("Refresh rate → " + rate);
-                if (prefs.getBoolean(STYLUS_MODE_KEY, false)) {
-                    PenUtils.setRefreshRateMode(rate);
-                }
-                // Notify tile so subtitle updates even when QS is closed.
+                PenUtils.setRefreshRateMode(rate);
                 notifyTile();
             }
 
@@ -178,11 +161,6 @@ public class StylusSettingsFragment extends PreferenceFragmentCompat implements
     // Tile notification — dual channel
     // -----------------------------------------------------------------------
 
-    /**
-     * LocalBroadcast: instant update if QS panel is currently open.
-     * requestListeningState(): forces onStartListening() if QS is closed so the tile
-     * re-reads prefs and updates icon/subtitle without the user needing to open QS.
-     */
     private void notifyTile() {
         LocalBroadcastManager.getInstance(requireContext())
                 .sendBroadcast(new Intent(StylusTileService.ACTION_STYLUS_CHANGED));
@@ -195,13 +173,9 @@ public class StylusSettingsFragment extends PreferenceFragmentCompat implements
     // -----------------------------------------------------------------------
 
     private void refreshUI() {
-        final boolean stylusMode  = mPrefs.getBoolean(STYLUS_MODE_KEY, false);
         final boolean forceRecog  = mPrefs.getBoolean(FORCE_RECOGNIZE_KEY, false);
         final String  refreshRate = mPrefs.getString(STYLUS_REFRESH_RATE_KEY, RATE_DYNAMIC);
 
-        if (mStylusModePref != null && mStylusModePref.isChecked() != stylusMode) {
-            mStylusModePref.setChecked(stylusMode);
-        }
         if (mForceRecognizePref != null && mForceRecognizePref.isChecked() != forceRecog) {
             mForceRecognizePref.setChecked(forceRecog);
         }
@@ -212,32 +186,33 @@ public class StylusSettingsFragment extends PreferenceFragmentCompat implements
             }
         }
         if (mRefreshRatePref != null) {
-            // Guard setValue(): calling it unconditionally triggers notifyChanged() →
-            // RecyclerView item-change animation even when the value hasn't changed.
             String current = mRefreshRatePref.getValue();
             if (current == null || !current.equals(refreshRate)) {
                 mRefreshRatePref.setValue(refreshRate);
             }
         }
 
-        updateFooter(stylusMode, forceRecog, refreshRate);
+        updateFooter(forceRecog, refreshRate);
     }
 
-    private void updateFooter(boolean stylusMode, boolean forceRecog, String refreshRate) {
+    private void updateFooter(boolean forceRecog, String refreshRate) {
         if (mFooterPref == null) return;
 
-        final boolean penActive    = PenUtils.isPenModeEnabled();
+        final boolean penInUse     = PenUtils.isPenInUse();
         final boolean penConnected = PenUtils.isPenConnected();
+        final boolean penAttached  = PenUtils.isPenAttached();
 
         final String statusText;
-        if (!stylusMode) {
-            statusText = getString(R.string.stylus_status_inactive) + " (Off)";
+        if (penInUse) {
+            statusText = getString(R.string.stylus_status_active) + " (" + getRateLabel(refreshRate) + " • In use)";
+        } else if (penAttached) {
+            statusText = getString(R.string.stylus_status_inactive) + " (Docked / Charging • 144Hz)";
         } else if (penConnected) {
-            statusText = getString(R.string.stylus_status_active) + " (Pen Connected)";
+            statusText = getString(R.string.stylus_status_inactive) + " (Connected • 144Hz)";
         } else if (forceRecog) {
-            statusText = getString(R.string.stylus_status_active) + " (Force Mode)";
+            statusText = getString(R.string.stylus_status_inactive) + " (Force Mode Ready • 144Hz)";
         } else {
-            statusText = getString(R.string.stylus_status_inactive) + " (No Pen)";
+            statusText = getString(R.string.stylus_status_inactive) + " (No Pen • 144Hz)";
         }
 
         mFooterPref.setTitle(
@@ -247,7 +222,7 @@ public class StylusSettingsFragment extends PreferenceFragmentCompat implements
                         + "\n"
                         + getString(R.string.stylus_footer_refresh_rate,
                                 getRateLabel(refreshRate)
-                                + " (" + (penActive ? "Applied" : "Saved") + ")"));
+                                + " (" + (penInUse ? "Active" : "When in use") + ")"));
     }
 
     private String getRateLabel(String value) {
