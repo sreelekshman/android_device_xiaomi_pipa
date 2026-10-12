@@ -18,7 +18,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/stylus_title">
 
-    <SwitchPreference
+    <SwitchPreferenceCompat
         android:key="force_recognize_stylus_key"
         android:title="@string/force_stylus_switch_title"
         android:summary="@string/force_stylus_switch_summary"
@@ -32,7 +32,7 @@
         android:entryValues="@array/refresh_rate_values"
         android:defaultValue="dynamic" />
 
-    <SwitchPreference
+    <SwitchPreferenceCompat
         android:key="stylus_charging_notification_key"
         android:title="@string/stylus_charging_notification_title"
         android:summary="@string/stylus_charging_notification_summary"

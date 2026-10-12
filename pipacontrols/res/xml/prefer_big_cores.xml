@@ -7,7 +7,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/prefer_big_cores_title">
 
-    <SwitchPreference
+    <SwitchPreferenceCompat
         android:key="prefer_big_cores_key"
         android:title="@string/prefer_big_cores_title"
         android:defaultValue="false"

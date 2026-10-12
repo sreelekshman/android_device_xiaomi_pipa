@@ -11,11 +11,12 @@ import android.util.Log;
 
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
+
+import com.android.settingslib.widget.SettingsBasePreferenceFragment;
 
 import org.lineageos.pipacontrols.R;
 
-public class GpuFreqCapFragment extends PreferenceFragmentCompat
+public class GpuFreqCapFragment extends SettingsBasePreferenceFragment
         implements Preference.OnPreferenceChangeListener {
 
     private static final String TAG = "GpuFreqCap";

@@ -17,9 +17,130 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-    <style name="TextAppearance.Medium" parent="@android:style/TextAppearance.Material.Medium" />
-    <style name="Theme.AppSubSettings" parent="@style/Theme.SubSettingsBase">
-        <item name="android:colorControlHighlight">#20000000</item>
+    <style name="TextAppearance.Medium" parent="@android:style/TextAppearance.DeviceDefault.Medium" />
+
+    <style name="TextAppearance.SubSettings.PreferenceTitle" parent="@android:style/TextAppearance.Material.Subhead">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
+    <style name="TextAppearance.SubSettings.PreferenceSummary" parent="@android:style/TextAppearance.DeviceDefault.Small">
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="TextAppearance.SubSettings.CategoryTitle" parent="@android:style/TextAppearance.DeviceDefault.Medium">
+        <item name="android:textColor">?android:attr/colorAccent</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <!-- Library style overrides: ensure normal weight and matching sizes -->
+    <style name="TextAppearance.SettingsLib.PreferenceTitle" parent="@android:style/TextAppearance.Material.Subhead">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="TextAppearance.SettingsLib.PreferenceSummary" parent="@android:style/TextAppearance.DeviceDefault.Small">
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="TextAppearance.CategoryTitle.SettingsLib" parent="@android:style/TextAppearance.DeviceDefault.Medium">
+        <item name="android:textColor">?android:attr/colorAccent</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="TextAppearance.SettingsLib.TitleMedium.Emphasized" parent="@android:style/TextAppearance.DeviceDefault.Medium">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="TextAppearance.SettingsLib.TitleLarge.Emphasized" parent="@android:style/TextAppearance.DeviceDefault.Widget.ActionBar.Title">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">20dp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="TextAppearance.SettingsLib.DisplaySmall.Emphasized" parent="@android:style/TextAppearance.DeviceDefault.Widget.ActionBar.Title">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">36dp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <!-- Category Header: normal weight 14sp, matching system Settings categories -->
+    <style name="ExpressivePreferenceCategoryTitleStyle" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">start</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:textAppearance">@style/TextAppearance.SubSettings.CategoryTitle</item>
+        <item name="android:textColor">?android:attr/colorAccent</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <!-- Preference Item Title: 16sp regular sans-serif (not medium/bold) -->
+    <style name="ExpressivePreferenceTextFrameTitleStyle" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">start</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:textAppearance">@style/TextAppearance.SubSettings.PreferenceTitle</item>
+        <item name="android:ellipsize">marquee</item>
+    </style>
+
+    <!-- Preference Item Summary: 14sp regular sans-serif secondary -->
+    <style name="ExpressivePreferenceTextFrameSummaryStyle" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_below">@android:id/title</item>
+        <item name="android:layout_alignStart">@android:id/title</item>
+        <item name="android:layout_gravity">start</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:textAppearance">@style/TextAppearance.SubSettings.PreferenceSummary</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:maxLines">10</item>
+    </style>
+
+    <!-- Collapsing Toolbar Title: regular sans-serif weight matching system standard -->
+    <style name="SettingsLibCollapsingToolbarTitle.Collapsed" parent="@android:style/TextAppearance.DeviceDefault.Widget.ActionBar.Title">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">20dp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="SettingsLibCollapsingToolbarTitle.Expanded" parent="SettingsLibCollapsingToolbarTitle.Collapsed">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">36dp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="Theme.SubSettingsBase.Expressive" parent="Theme.SettingsBase.Expressive">
+        <item name="android:textAppearanceListItem">@style/TextAppearance.SubSettings.PreferenceTitle</item>
+        <item name="android:textAppearanceListItemSecondary">@style/TextAppearance.SubSettings.PreferenceSummary</item>
+        <item name="preferenceCategoryTitleTextAppearance">@style/TextAppearance.SubSettings.CategoryTitle</item>
+        <item name="preferenceCategoryTitleTextColor">?android:attr/colorAccent</item>
+    </style>
+
+    <style name="Theme.AppSubSettings" parent="@style/Theme.SubSettingsBase.Expressive">
+        <item name="android:textAppearanceListItem">@style/TextAppearance.SubSettings.PreferenceTitle</item>
+        <item name="android:textAppearanceListItemSecondary">@style/TextAppearance.SubSettings.PreferenceSummary</item>
+        <item name="preferenceCategoryTitleTextAppearance">@style/TextAppearance.SubSettings.CategoryTitle</item>
+        <item name="preferenceCategoryTitleTextColor">?android:attr/colorAccent</item>
+    </style>
 </resources>

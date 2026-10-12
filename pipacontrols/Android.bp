@@ -25,6 +25,8 @@ android_app {
         "androidx.viewpager_viewpager",
         "androidx.recyclerview_recyclerview",
         "androidx.cardview_cardview",
+        "SettingsLibPreference",
+        "SettingsLibSettingsTheme",
     ],
 
     optimize: {

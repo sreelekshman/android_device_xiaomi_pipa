@@ -3,14 +3,13 @@
      Copyright (C) 2017-2022 crDroid Android Project
      SPDX-License-Identifier: Apache-2.0
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.android.settingslib.widget.DrawableStateLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:gravity="center_vertical"
     android:paddingStart="?android:attr/listPreferredItemPaddingStart"
     android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
-    android:background="?android:attr/activatedBackgroundIndicator"
     android:clipToPadding="false">
 
     <LinearLayout
@@ -83,7 +82,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_toEndOf="@id/value"
-                android:layout_centerVertical="true" />
+                android:layout_centerVertical="true"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:tint="?android:attr/colorControlNormal" />
 
         </RelativeLayout>
 
@@ -100,7 +101,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_centerVertical="true" />
+                android:layout_centerVertical="true"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:tint="?android:attr/colorControlNormal" />
 
             <ImageView
                 android:id="@+id/plus"
@@ -108,7 +111,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true" />
+                android:layout_centerVertical="true"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:tint="?android:attr/colorControlNormal" />
 
             <LinearLayout
                 android:id="@+id/seekbar"
@@ -128,4 +133,4 @@
         android:gravity="end|center_vertical"
         android:paddingStart="16dp"
         android:orientation="vertical" />
-</LinearLayout>
+</com.android.settingslib.widget.DrawableStateLinearLayout>

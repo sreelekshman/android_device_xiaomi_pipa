@@ -11,11 +11,11 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
-import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
 import com.android.settingslib.widget.FooterPreference;
 import com.android.settingslib.widget.MainSwitchPreference;
+import com.android.settingslib.widget.SettingsBasePreferenceFragment;
 
 import org.lineageos.pipacontrols.R;
 
@@ -23,7 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class KeyboardSettingsFragment extends PreferenceFragmentCompat implements
+public class KeyboardSettingsFragment extends SettingsBasePreferenceFragment implements
         SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG               = "XiaomiKeyboardSettings";

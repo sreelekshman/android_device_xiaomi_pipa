@@ -14,7 +14,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
+
+import com.android.settingslib.widget.SettingsBasePreferenceFragment;
 
 import org.lineageos.pipacontrols.apppriority.AppPriorityActivity;
 import org.lineageos.pipacontrols.apppriority.AppPriorityUtils;
@@ -48,7 +49,7 @@ import org.lineageos.pipacontrols.touch.BoostDurationUtils;
 import org.lineageos.pipacontrols.touch.TouchBoostActivity;
 import org.lineageos.pipacontrols.touch.TouchBoostUtils;
 
-public class PipaControlsFragment extends PreferenceFragmentCompat {
+public class PipaControlsFragment extends SettingsBasePreferenceFragment {
 
     private static final String TAG = "PipaControls";
 

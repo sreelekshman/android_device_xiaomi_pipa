@@ -17,17 +17,17 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.android.settingslib.widget.LayoutPreference;
+import com.android.settingslib.widget.SettingsBasePreferenceFragment;
 
 import org.lineageos.pipacontrols.CustomSeekBarPreference;
 import org.lineageos.pipacontrols.R;
 
-public class SaturationFragment extends PreferenceFragmentCompat
+public class SaturationFragment extends SettingsBasePreferenceFragment
         implements Preference.OnPreferenceChangeListener {
 
     private static final String KEY_SATURATION         = "saturation";

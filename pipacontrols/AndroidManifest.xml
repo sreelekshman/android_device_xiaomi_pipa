@@ -37,7 +37,8 @@
         android:label="@string/pipa_controls_title"
         android:persistent="true"
         android:defaultToDeviceProtectedStorage="true"
-        android:directBootAware="true">
+        android:directBootAware="true"
+        android:theme="@style/Theme.AppSubSettings">
 
         <receiver
             android:name=".BootCompletedReceiver"

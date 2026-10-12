@@ -13,13 +13,13 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 
 import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
 
 import com.android.settingslib.widget.MainSwitchPreference;
+import com.android.settingslib.widget.SettingsBasePreferenceFragment;
 
 import org.lineageos.pipacontrols.R;
 
-public class BypassChargingFragment extends PreferenceFragmentCompat
+public class BypassChargingFragment extends SettingsBasePreferenceFragment
         implements Preference.OnPreferenceChangeListener {
 
     private static final String TAG = "BypassChargingFragment";

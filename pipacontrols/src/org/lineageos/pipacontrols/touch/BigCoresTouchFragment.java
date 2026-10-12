@@ -10,17 +10,18 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.SwitchPreference;
+import androidx.preference.SwitchPreferenceCompat;
+
+import com.android.settingslib.widget.SettingsBasePreferenceFragment;
 
 import org.lineageos.pipacontrols.R;
 
-public class BigCoresTouchFragment extends PreferenceFragmentCompat
+public class BigCoresTouchFragment extends SettingsBasePreferenceFragment
         implements Preference.OnPreferenceChangeListener {
 
     private static final String TAG = "BigCoresOnTouch";
 
-    private SwitchPreference mPref;
+    private SwitchPreferenceCompat mPref;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {

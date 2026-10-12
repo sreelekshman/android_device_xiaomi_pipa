@@ -31,11 +31,11 @@ import android.util.Log;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.ListPreference;
-import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
-import androidx.preference.SwitchPreference;
+import androidx.preference.SwitchPreferenceCompat;
 
 import com.android.settingslib.widget.FooterPreference;
+import com.android.settingslib.widget.SettingsBasePreferenceFragment;
 
 import org.lineageos.pipacontrols.R;
 
@@ -46,7 +46,7 @@ import java.util.Locale;
 /**
  * Settings fragment for stylus/pen configuration.
  */
-public class StylusSettingsFragment extends PreferenceFragmentCompat implements
+public class StylusSettingsFragment extends SettingsBasePreferenceFragment implements
         SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = "XiaomiStylusSettings";
@@ -59,10 +59,10 @@ public class StylusSettingsFragment extends PreferenceFragmentCompat implements
     private static final String RATE_60      = "60";
     private static final String RATE_120     = "120";
 
-    private SharedPreferences    mPrefs;
-    private SwitchPreference     mForceRecognizePref;
-    private SwitchPreference     mChargingNotifPref;
-    private ListPreference       mRefreshRatePref;
+    private SharedPreferences        mPrefs;
+    private SwitchPreferenceCompat   mForceRecognizePref;
+    private SwitchPreferenceCompat   mChargingNotifPref;
+    private ListPreference           mRefreshRatePref;
     private FooterPreference     mFooterPref;
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());

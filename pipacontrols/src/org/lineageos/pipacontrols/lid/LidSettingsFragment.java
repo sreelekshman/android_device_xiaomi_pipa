@@ -11,9 +11,10 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 
-import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
-import androidx.preference.SwitchPreference;
+import androidx.preference.SwitchPreferenceCompat;
+
+import com.android.settingslib.widget.SettingsBasePreferenceFragment;
 
 import org.lineageos.pipacontrols.R;
 
@@ -24,7 +25,7 @@ import java.util.Locale;
 /**
  * Settings fragment for lid/smart cover configuration.
  */
-public class LidSettingsFragment extends PreferenceFragmentCompat implements
+public class LidSettingsFragment extends SettingsBasePreferenceFragment implements
         SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG     = "XiaomiLidSettings";
@@ -37,7 +38,7 @@ public class LidSettingsFragment extends PreferenceFragmentCompat implements
         try {
             addPreferencesFromResource(R.xml.lid_settings);
             mLidPreference = PreferenceManager.getDefaultSharedPreferences(getContext());
-            SwitchPreference switchPreference = findPreference(LID_KEY);
+            SwitchPreferenceCompat switchPreference = findPreference(LID_KEY);
             if (switchPreference != null) {
                 switchPreference.setChecked(mLidPreference.getBoolean(LID_KEY, true));
                 switchPreference.setEnabled(true);

@@ -7,7 +7,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/touch_boost_title">
 
-    <SwitchPreference
+    <SwitchPreferenceCompat
         android:key="touch_boost_key"
         android:title="@string/touch_boost_title"
         android:defaultValue="true"

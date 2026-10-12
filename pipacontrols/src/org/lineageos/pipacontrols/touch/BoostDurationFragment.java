@@ -12,12 +12,13 @@ import android.util.Log;
 
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
+
+import com.android.settingslib.widget.SettingsBasePreferenceFragment;
 
 import org.lineageos.pipacontrols.R;
 
-public class BoostDurationFragment extends PreferenceFragmentCompat
+public class BoostDurationFragment extends SettingsBasePreferenceFragment
         implements Preference.OnPreferenceChangeListener,
                    SharedPreferences.OnSharedPreferenceChangeListener {
 
