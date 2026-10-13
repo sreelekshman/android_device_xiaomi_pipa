@@ -1,7 +1,6 @@
 /*
- * Copyright (C) 2023-2026 The LineageOS Project
- * Copyright (C) 2026 nullpointer1101
- *
+ * SPDX-FileCopyrightText: The LineageOS Project
+ * SPDX-FileCopyrightText: 2026 nullpointer1101
  * SPDX-License-Identifier: Apache-2.0
  */
 
