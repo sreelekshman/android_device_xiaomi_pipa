@@ -63,6 +63,8 @@ blob_fixups: blob_fixups_user_type = {
         .apktool_patch('blob-patches/WfdCommon.patch'),
     'system_ext/lib64/libwfdservice.so': blob_fixup()
         .replace_needed('android.media.audio.common.types-V4-cpp.so', 'android.media.audio.common.types-V5-cpp.so'),
+    'vendor/bin/hw/android.hardware.biometrics.face-service.noth': blob_fixup()
+        .replace_needed('libcamera2ndk_vendor.so', 'libcamera2ndk_vendor-v33.so'),
     'vendor/etc/init/init.mi_thermald.rc': blob_fixup()
         .regex_replace('.*seclabel u:r:mi_thermald:s0\n', ''),
     'vendor/etc/seccomp_policy/atfwd@2.0.policy': blob_fixup()
