@@ -580,6 +580,13 @@ vendor/etc/seccomp_policy/vendor.qti.hardware.dsp.policy
 vendor/lib/vendor.qti.hardware.dsp@1.0.so
 vendor/lib64/vendor.qti.hardware.dsp@1.0.so
 
+# Face unlock - from Tetris
+vendor/bin/hw/android.hardware.biometrics.face-service.noth|24a7b552bfa115842cef85e92682ce236fabec0c|18e58ee0301d0370b811a7d83a53a489c97f3417
+vendor/etc/init/android.hardware.biometrics.face-service.noth.rc|0784889c93eeff70054c280538a3c65eead59836
+vendor/etc/vintf/manifest/android.hardware.biometrics.face-service.noth.xml|d4506a850c4a1f4d353d1f22936392c6f1e720de
+vendor/lib64/libcamera2ndk_vendor.so:vendor/lib64/libcamera2ndk_vendor-v33.so;FIX_SONAME|8125534ad651266ace3786e52e7a91ccd3c6a184|86721dc83f175b8d857549b1eb5cdfbafbae06af
+vendor/lib64/libstfaceunlockppl.so|050a92a6b834fd2ba9c5fd358cf39b7df82aa8cf|41aaca489d9ffc4c57296762f0ca10ce14707dad
+
 # Feature enabler client
 vendor/bin/feature_enabler_client
 vendor/etc/init/feature_enabler_client.rc

@@ -142,6 +142,10 @@ TARGET_VNDK_USE_CORE_VARIANT := true
 PRODUCT_PACKAGES += \
     android.hardware.drm-service.clearkey
 
+# Face unlock
+PRODUCT_COPY_FILES += \
+    frameworks/native/data/etc/android.hardware.biometrics.face.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.biometrics.face.xml
+
 # Health
 PRODUCT_PACKAGES += \
     android.hardware.health-service.qti

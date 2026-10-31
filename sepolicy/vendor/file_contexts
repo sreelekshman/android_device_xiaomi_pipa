@@ -18,6 +18,9 @@
 /vendor/bin/displayfeature                                                                          u:object_r:vendor_displayfeature_exec:s0
 /vendor/bin/hw/vendor\.xiaomi\.hardware\.displayfeature@1\.0-service                                u:object_r:vendor_hal_displayfeature_xiaomi_default_exec:s0
 
+# Face unlock
+/vendor/bin/hw/android\.hardware\.biometrics\.face-service\.noth    u:object_r:hal_face_default_exec:s0
+
 # Fingerprint
 /vendor/bin/hw/android\.hardware\.biometrics\.fingerprint-service\.xiaomi                           u:object_r:hal_fingerprint_default_exec:s0
 
